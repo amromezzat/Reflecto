@@ -1,6 +1,5 @@
 
 var game = new Phaser.Game(800, 600, Phaser.AUTO, '', {preload: preload, create: create, update: update});
-
 var player, cursors, upButton, downButton, leftButton, rightButton;
 var speed = 200;
 var bullet;
@@ -15,6 +14,9 @@ function create()
 {
 	//Set background
 	game.stage.backgroundColor = '#FFFFFF';
+	game.scale.pageAlignHorizontally = true;
+	game.scale.pageAlignVertically = true;
+	game.scale.refresh();
 	
 	//Create Player
 	player = game.add.sprite(200,200,'player');
