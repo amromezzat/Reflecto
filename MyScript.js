@@ -1,8 +1,7 @@
 
 var game = new Phaser.Game(800, 600, Phaser.AUTO, '', {preload: preload, create: create, update: update});
-var player, cursors, upButton, downButton, leftButton, rightButton;
+var player, cursors, upButton, downButton, leftButton, rightButton , bullet;
 var speed = 200;
-var bullet;
 
 function preload()
 {
@@ -23,6 +22,7 @@ function create()
 	player.anchor.setTo(0.5,0.5);
 	player.scale.setTo(0.5, 0.5);
 	game.physics.arcade.enable(player);
+	//player.body.gravity.y = 500;
 	player.body.collideWorldBounds=true;
 	
 	//Create Bullet
@@ -31,9 +31,10 @@ function create()
 	bullet.scale.setTo(0.5, 0.5);
 	game.physics.arcade.enable(bullet);
 	bullet.body.collideWorldBounds=true;
-	bullet.body.bounce.setTo(0.9,0.9);
+	bullet.body.bounce.setTo(1.0,1.0);
 	bullet.body.velocity.x = 400;
 	bullet.body.velocity.y = 200;
+	
 	
 	
 	//Keyboard Controls
@@ -47,6 +48,8 @@ function create()
 
 function update()
 {
+	//bullet.body.velocity.x = bulletSpeedX;
+	//bullet.body.velocity.y = bulletSpeedY;
 	movePlayer();
 }
 
@@ -57,11 +60,13 @@ function movePlayer()
 
 	if(upButton.isDown)
 	{
-		player.body.velocity.y = -speed;
+		//player.body.velocity.y = -speed;
+		player.body.angularVelocity = -200;
 	}
 	else if(downButton.isDown)
 	{
 		player.body.velocity.y = speed;
+
 	}
 	if(leftButton.isDown)
 	{
