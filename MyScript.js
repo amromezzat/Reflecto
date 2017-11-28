@@ -40,6 +40,8 @@ function create()
 	leftButton = game.input.keyboard.addKey(Phaser.Keyboard.A);
 	rightButton = game.input.keyboard.addKey(Phaser.Keyboard.D);
 	
+
+	
 }
 
 function update()
@@ -110,27 +112,43 @@ function createBullet(posX,posY)
 
 function movePlayer()
 {
+	slowTime();
+	console.log(game.time.desiredFps);
 	player.body.velocity.x = 0;
 	player.body.velocity.y = 0;
 
 	if(upButton.isDown)
 	{
 		player.body.velocity.y = -speed;
+		resetTime();
 	}
 	else if(downButton.isDown)
 	{
 		player.body.velocity.y = speed;
+		resetTime();
 	}
 	if(leftButton.isDown)
 	{
 		player.body.velocity.x = -speed;
+		resetTime();
 	}
 	else if(rightButton.isDown)
 	{
 		player.body.velocity.x = speed;
+		resetTime();
 	}
 }
 
+function slowTime()
+{
+	game.time.slowMotion = 4;
+	game.time.desiredFps = 240;
+}
+function resetTime()
+{
+	game.time.slowMotion = 1;
+	game.time.desiredFps = 60;
+}
 
 
 
