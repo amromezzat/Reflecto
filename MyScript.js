@@ -25,14 +25,14 @@ function create() {
     enemiesGroup = game.add.group();
 
     //Create Player
-    player = game.add.sprite(200, 200, 'player');
+    player = game.add.sprite(600, 600, 'player');
     player.anchor.setTo(0.5, 0.5);
     player.scale.setTo(0.5, 0.5);
     game.physics.arcade.enable(player);
     player.body.collideWorldBounds = true;
 
     //Create Arrow
-    arrow = game.add.sprite(200, 200, 'arrow');
+    arrow = game.add.sprite(600, 600, 'arrow');
     arrow.anchor.setTo(0, 0.5);
     arrow.scale.setTo(0.05, 0.05);
     game.physics.arcade.enable(arrow);
@@ -150,7 +150,7 @@ function movePlayer() {
     arrow.rotation = game.physics.arcade.angleToPointer(arrow);
 
     //Create Bullet on Click
-    game.input.onDown.add(Shoot, this);
+    //game.input.onDown.add(Shoot, this);
 }
 
 function Shoot() {
