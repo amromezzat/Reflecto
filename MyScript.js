@@ -2,9 +2,6 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create
 var player, arrow, cursors, upButton, downButton, leftButton, rightButton;
 var speed = 200;
 var bulletSpeed = 500;
-var myBullets = [];
-
-var bulletsGroup, enimesGroup;
 
 //Pad Variables
 var padAimX, padAimY, pressFlagA = 0;
@@ -13,6 +10,7 @@ function preload() {
     game.load.image('player', 'assets/sprites/player.png');
     game.load.image('bullet', 'assets/sprites/bullet.png');
     game.load.image('arrow', 'assets/sprites/arrow.png');
+    game.load.spritesheet('enemy', 'assets/sprites/enemy.png', 313, 207)
 }
 
 function create() {
@@ -24,7 +22,7 @@ function create() {
 
     //Create Groups
     bulletsGroup = game.add.group();
-    enimesGroup = game.add.group();
+    enemiesGroup = game.add.group();
 
     //Create Player
     player = game.add.sprite(200, 200, 'player');
@@ -49,10 +47,13 @@ function create() {
     //Gamepad 
     game.input.gamepad.start();
     pad1 = game.input.gamepad.pad1;
-
+    //creating enemies
+    enemy = new Enemy(200, 200)
+    myEnemies.push(enemy)
 }
 
 function update() {
+    enemy.update(player)
     if (player) {
         //Choose Between Keyboard or Gamepad
         movePlayer();
@@ -89,6 +90,7 @@ function checkBulletCollison(myBullet) {
             console.log(err.message);
         }
 
+        game.physics.arcade.collide(myBullet[0], enemiesGroup, beCollision);
     }
 }
 
@@ -105,6 +107,16 @@ function bbCollision(b1, b2) {
     bulletSearchDestroy(b2);
 }
 
+function beCollision(b, e) {
+    for (let i = 0; i < myEnemies.length; i++) {
+        if (myEnemies[i].getSprite() == e) {
+            myEnemies[i].die();
+            myEnemies.splice(i, 1);
+        }
+    }
+    bulletSearchDestroy(b);
+}
+
 function bulletSearchDestroy(bullet) {
     for (let i = 0; i < myBullets.length; i++) {
         if (myBullets[i][0] == bullet) {
@@ -112,30 +124,6 @@ function bulletSearchDestroy(bullet) {
             myBullets[i][0] = null;
         }
     }
-}
-
-function createBullet(posX, posY) {
-    var bullet = game.add.sprite(posX, posY, 'bullet');
-    bullet.anchor.setTo(0.5, 0.5);
-    bullet.scale.setTo(0.5, 0.5);
-    game.physics.arcade.enable(bullet);
-    bullet.body.collideWorldBounds = true;
-    bullet.body.bounce.setTo(1.0, 1.0);
-
-    //Use this to Move to Mouse Location
-    //game.physics.arcade.moveToPointer(bullet, bulletSpeed);
-
-    //Use this to Move to Player Location (Our Main Usage)
-    game.physics.arcade.moveToObject(bullet, player, bulletSpeed);
-
-    //Use this to Move to Position(X,Y)
-    //game.physics.arcade.moveToXY(bullet,200,100,bulletSpeed);
-
-    bulletsGroup.add(bullet);
-
-    var bulletArr = [bullet, 3];
-    return bulletArr;
-
 }
 
 function movePlayer() {
@@ -167,7 +155,7 @@ function movePlayer() {
 
 function Shoot() {
     if (player)
-        myBullets.push(createBullet(50, 50));
+        enemy.shoot()
 }
 
 function movePlayerPad() {
@@ -221,11 +209,13 @@ function movePlayerPad() {
 }
 
 function slowTime() {
+    enemy.animSpeed = 10
     game.time.slowMotion = 6;
     game.time.desiredFps = 360;
 }
 
 function resetTime() {
+    enemy.animSpeed = 60
     game.time.slowMotion = 1;
     game.time.desiredFps = 60;
 }
