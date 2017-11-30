@@ -213,22 +213,23 @@ function slash()
 	if(player)
 	{
 		var graphics = game.add.graphics(player.position.x, player.position.y);
-		graphics.boundsPadding = 0;
-		graphics.alpha= 0.5;
+		graphics.alpha= 0.0;
 		var angle = game.physics.arcade.angleToPointer(arrow);
-		graphics.beginFill(0xff0000);
+		graphics.lineStyle(15, 0xff0000);
 		graphics.arc(0, 0, 135,angle-game.math.degToRad(90), angle+game.math.degToRad(90), false);
-		graphics.endFill();
 		
 		myArc = game.add.sprite(player.position.x, player.position.y, graphics.generateTexture());
 		myArc.anchor.setTo(0.5, 0.5);
-		myArc.alpha = 0.5;
+		myArc.alpha = 0.3;
 
 		graphics.lifespan = 1;
 		setTimeout(function()
 		{
-			myArc.destroy();
-			myArc = null;
+			if(myArc)
+			{
+				myArc.destroy();
+				myArc = null;
+			}
 		},100);
 	}
 }
