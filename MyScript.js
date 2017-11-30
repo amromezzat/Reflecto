@@ -4,11 +4,14 @@ var speed = 200;
 var bulletSpeed = 500;
 var myArc, relfectFlag = 0;
 //Pad Variables
-var padAimX, padAimY, lastpadAimX=0, lastpadAimY=0, pressFlagR1 = 0, padFlag = 0;
+var padAimX, padAimY, lastpadAimX = 0,
+    lastpadAimY = 0,
+    pressFlagR1 = 0,
+    padFlag = 0;
 
 
-function preload() 
-{
+function preload() {
+    game.load.image('floor', 'assets/sprites/floor.png');
     game.load.image('player', 'assets/sprites/player.png');
     game.load.image('bullet', 'assets/sprites/bullet.png');
     game.load.image('arrow', 'assets/sprites/arrow.png');
@@ -17,6 +20,7 @@ function preload()
 
 function create() {
     //Set Background and Center Game
+    game.add.tileSprite(0, 0, 800, 600, 'floor');
     game.stage.backgroundColor = '#FFFFFF';
     game.scale.pageAlignHorizontally = true;
     game.scale.pageAlignVertically = true;
@@ -49,13 +53,12 @@ function create() {
     rightButton = game.input.keyboard.addKey(Phaser.Keyboard.D);
 
     //Gamepad 
-	if(padFlag)
-	{
-		game.input.gamepad.start();
-		pad1 = game.input.gamepad.pad1;
-	}
+    if (padFlag) {
+        game.input.gamepad.start();
+        pad1 = game.input.gamepad.pad1;
+    }
 
-	
+
     //Create Enimes
     enemy2 = new Enemy(200, 200)
     enemy1 = new Enemy(600, 200)
@@ -65,25 +68,22 @@ function create() {
 
 function update() {
     if (player) {
-        for (let i = 0; i < myEnemies.length; i++) 
-		{
+        for (let i = 0; i < myEnemies.length; i++) {
             myEnemies[i].update(player);
-			if (myArc && myEnemies[i]) 
-			{
-				if (checkOverlap(myEnemies[i].getSprite(), myArc)) 
-				{
-					console.log("Enemy Attacked");
-					myEnemies[i].die();
-					myEnemies.splice(i, 1);
-				}
-			}
+            if (myArc && myEnemies[i]) {
+                if (checkOverlap(myEnemies[i].getSprite(), myArc)) {
+                    console.log("Enemy Attacked");
+                    myEnemies[i].die();
+                    myEnemies.splice(i, 1);
+                }
+            }
         }
 
         //Choose Between Keyboard or Gamepad
-		if(padFlag)
-			movePlayerPad();
-		else
-			movePlayer();
+        if (padFlag)
+            movePlayerPad();
+        else
+            movePlayer();
 
         //Control Arrow Movement
         arrow.position.x = player.position.x;
@@ -101,7 +101,7 @@ function update() {
     }
     //enemies collide
     game.physics.arcade.collide(enemiesGroup, enemiesGroup);
-	
+
 
 }
 
@@ -144,28 +144,23 @@ function checkOverlap(spriteA, spriteB) {
     return Phaser.Rectangle.intersects(boundsA, boundsB);
 }
 
-function reflect(b) 
-{
-	if(player)
-	{
-		var xdir,ydir,norm;
-		if(padFlag)
-		{
-			xdir = (padAimX+lastpadAimX) - player.position.x;
-			ydir = (padAimY+lastpadAimY) - player.position.y;
-		}
-		else
-		{
-			xdir = game.input.mousePointer.x - player.position.x;
-			ydir = game.input.mousePointer.y - player.position.y;	
-		}
-		
-		norm = Math.sqrt((xdir*xdir)+(ydir*ydir));
-		xdir = xdir/norm;
-		ydir = ydir/norm;
-		b.body.velocity.x = xdir * (bulletSpeed * 1.25);
-		b.body.velocity.y = ydir * (bulletSpeed * 1.25);
-	}
+function reflect(b) {
+    if (player) {
+        var xdir, ydir, norm;
+        if (padFlag) {
+            xdir = (padAimX + lastpadAimX) - player.position.x;
+            ydir = (padAimY + lastpadAimY) - player.position.y;
+        } else {
+            xdir = game.input.mousePointer.x - player.position.x;
+            ydir = game.input.mousePointer.y - player.position.y;
+        }
+
+        norm = Math.sqrt((xdir * xdir) + (ydir * ydir));
+        xdir = xdir / norm;
+        ydir = ydir / norm;
+        b.body.velocity.x = xdir * (bulletSpeed * 1.25);
+        b.body.velocity.y = ydir * (bulletSpeed * 1.25);
+    }
 
 }
 
@@ -237,11 +232,11 @@ function slash() {
     if (player) {
         var graphics = game.add.graphics(player.position.x, player.position.y);
         graphics.alpha = 0.0;
-        
-		if(padFlag)
-			var angle = game.physics.arcade.angleToXY(arrow,padAimX+lastpadAimX,padAimY+lastpadAimY); //Use with Gamepad
-		else
-			var angle = game.physics.arcade.angleToPointer(arrow); //Use with Keyboard
+
+        if (padFlag)
+            var angle = game.physics.arcade.angleToXY(arrow, padAimX + lastpadAimX, padAimY + lastpadAimY); //Use with Gamepad
+        else
+            var angle = game.physics.arcade.angleToPointer(arrow); //Use with Keyboard
 
         graphics.lineStyle(72, 0xff0000);
         graphics.arc(0, 0, 90, angle - game.math.degToRad(36), angle + game.math.degToRad(36), false);
@@ -251,10 +246,8 @@ function slash() {
         myArc.alpha = 0.3;
 
         graphics.lifespan = 1;
-        setTimeout(function() 
-		{
-            if (myArc) 
-			{
+        setTimeout(function() {
+            if (myArc) {
                 myArc.destroy();
                 myArc = null;
             }
@@ -266,7 +259,8 @@ function movePlayerPad() {
     slowTime();
     player.body.velocity.x = 0;
     player.body.velocity.y = 0;
-	var aimXChange = 0, aimYChange = 0;
+    var aimXChange = 0,
+        aimYChange = 0;
 
     padAimX = player.position.x;
     padAimY = player.position.y;
@@ -290,33 +284,27 @@ function movePlayerPad() {
         //arrow.rotation = game.physics.arcade.angleToXY(arrow, padAimX, padAimY);
     }
 
-    if (pad1.axis(Phaser.Gamepad.XBOX360_STICK_RIGHT_X) < -0.1) 
-	{
+    if (pad1.axis(Phaser.Gamepad.XBOX360_STICK_RIGHT_X) < -0.1) {
         padAimX = player.position.x - 100;
-		lastpadAimX = -100;
+        lastpadAimX = -100;
         //arrow.rotation = game.physics.arcade.angleToXY(arrow, padAimX, padAimY);
-		aimXChange = 1;
-    } 
-	else if (pad1.axis(Phaser.Gamepad.XBOX360_STICK_RIGHT_X) > 0.1) 
-	{
+        aimXChange = 1;
+    } else if (pad1.axis(Phaser.Gamepad.XBOX360_STICK_RIGHT_X) > 0.1) {
         padAimX = player.position.x + 100;
-		lastpadAimX = 100;
+        lastpadAimX = 100;
         //arrow.rotation = game.physics.arcade.angleToXY(arrow, padAimX, padAimY);
-		aimXChange = 1;
+        aimXChange = 1;
     }
-    if (pad1.axis(Phaser.Gamepad.XBOX360_STICK_RIGHT_Y) < -0.1) 
-	{
+    if (pad1.axis(Phaser.Gamepad.XBOX360_STICK_RIGHT_Y) < -0.1) {
         padAimY = player.position.y - 100;
-		lastpadAimY = -100;
+        lastpadAimY = -100;
         //arrow.rotation = game.physics.arcade.angleToXY(arrow, padAimX, padAimY);
-		aimYChange = 1;
-    } 
-	else if (pad1.axis(Phaser.Gamepad.XBOX360_STICK_RIGHT_Y) > 0.1) 
-	{
+        aimYChange = 1;
+    } else if (pad1.axis(Phaser.Gamepad.XBOX360_STICK_RIGHT_Y) > 0.1) {
         padAimY = player.position.y + 100;
-		lastpadAimY = 100;
+        lastpadAimY = 100;
         //arrow.rotation = game.physics.arcade.angleToXY(arrow, padAimX, padAimY);
-		aimYChange = 1;
+        aimYChange = 1;
     }
     if (pad1.justPressed(Phaser.Gamepad.XBOX360_RIGHT_BUMPER)) {
         pressFlagR1 = 1;
@@ -325,19 +313,15 @@ function movePlayerPad() {
         slash();
         pressFlagR1 = 0;
     }
-	if(aimXChange && !aimYChange)
-	{
-		lastpadAimY = 0;
-	}
-	else if(!aimXChange && aimYChange)
-	{
-		lastpadAimX = 0;
-	}
-	arrow.rotation = game.physics.arcade.angleToXY(arrow, padAimX+lastpadAimX, padAimY+lastpadAimY);
+    if (aimXChange && !aimYChange) {
+        lastpadAimY = 0;
+    } else if (!aimXChange && aimYChange) {
+        lastpadAimX = 0;
+    }
+    arrow.rotation = game.physics.arcade.angleToXY(arrow, padAimX + lastpadAimX, padAimY + lastpadAimY);
 }
 
-function slowTime() 
-{
+function slowTime() {
     for (let i = 0; i < myEnemies.length; i++) {
         myEnemies[i].animSpeed = 10
     }
@@ -345,8 +329,7 @@ function slowTime()
     game.time.desiredFps = 360;
 }
 
-function resetTime() 
-{
+function resetTime() {
     for (let i = 0; i < myEnemies.length; i++) {
         myEnemies[i].animSpeed = 60
     }
