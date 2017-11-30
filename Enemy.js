@@ -2,9 +2,9 @@ var myBullets = [],
     myEnemies = [];
 var bulletsGroup, enemiesGroup;
 
-function Enemy(x, y, attackSpeed = 2880) {
+function Enemy(x, y, attackSpeed = 2880, ammo = 2) {
     this.shootNow = attackSpeed;
-    this.ammo = 2;
+    this.ammo = ammo;
     this.animSpeed = 10;
     this.reloading = false;
     var moveCase;
@@ -101,7 +101,7 @@ function Enemy(x, y, attackSpeed = 2880) {
                     var reload = enemy.animations.play('reload', this.animSpeed, false);
                     //on reload finish reset ammo value and remove the lock
                     reload.onComplete.add(function() {
-                        this.ammo = 30;
+                        this.ammo = ammo;
                         this.reloading = false;
                     }, this)
                 }
