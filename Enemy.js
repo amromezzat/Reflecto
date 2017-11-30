@@ -44,7 +44,7 @@ function Enemy(x, y, attackSpeed = 2880, ammo = 2) {
     }
 
     this.update = function(player) {
-        this.shootNow -= this.animSpeed * game.rnd.realInRange(-1, 3);
+        this.shootNow -= this.animSpeed * game.rnd.realInRange(-1, 4);
         enemy.animations.currentAnim.speed = this.animSpeed;
         var angleDiff = game.physics.arcade.angleBetween(enemy, player);
         var ecu1 = Math.abs(enemy.x * Math.cos(angleDiff) - enemy.x)
