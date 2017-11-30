@@ -2,11 +2,13 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create
 var player, arrow, cursors, upButton, downButton, leftButton, rightButton;
 var speed = 200;
 var bulletSpeed = 500;
-
+var myArc;
 //Pad Variables
 var padAimX, padAimY, pressFlagA = 0;
+var relfectFlag = 0;
 
-function preload() {
+function preload() 
+{
     game.load.image('player', 'assets/sprites/player.png');
     game.load.image('bullet', 'assets/sprites/bullet.png');
     game.load.image('arrow', 'assets/sprites/arrow.png');
@@ -25,7 +27,7 @@ function create() {
     enemiesGroup = game.add.group();
 
     //Create Player
-    player = game.add.sprite(200, 200, 'player');
+    player = game.add.sprite(400, 300, 'player');
     player.anchor.setTo(0.5, 0.5);
     player.scale.setTo(0.5, 0.5);
     game.physics.arcade.enable(player);
@@ -36,25 +38,31 @@ function create() {
     arrow.anchor.setTo(0, 0.5);
     arrow.scale.setTo(0.05, 0.05);
     game.physics.arcade.enable(arrow);
+    game.physics.arcade.enable(arrow);
 
-    //Keyboard
+    //Keyboard and Mouse
     cursors = game.input.keyboard.createCursorKeys();
     upButton = game.input.keyboard.addKey(Phaser.Keyboard.W);
     downButton = game.input.keyboard.addKey(Phaser.Keyboard.S);
     leftButton = game.input.keyboard.addKey(Phaser.Keyboard.A);
     rightButton = game.input.keyboard.addKey(Phaser.Keyboard.D);
-
+	
     //Gamepad 
     game.input.gamepad.start();
     pad1 = game.input.gamepad.pad1;
+	
     //creating enemies
-    enemy = new Enemy(200, 200)
+    enemy = new Enemy(50, 150)
     myEnemies.push(enemy)
+	setInterval("Shoot()", 2000);
+	
 }
 
 function update() {
-    enemy.update(player)
-    if (player) {
+    
+    if (player) 
+	{
+		enemy.update(player)
         //Choose Between Keyboard or Gamepad
         movePlayer();
         //movePlayerPad();
@@ -63,15 +71,23 @@ function update() {
         arrow.position.x = player.position.x;
         arrow.position.y = player.position.y;
     }
-
+		
     //Check Bullet Collison
-    for (let i = 0; i < myBullets.length; i++) {
+    for (let i = 0; i < myBullets.length; i++) 
+	{
         checkBulletCollison(myBullets[i]);
     }
+	if(relfectFlag)
+	{
+		myArc.destroy();
+		myArc = null;
+		relfectFlag = 0;
+	}
 }
 
 function checkBulletCollison(myBullet) {
-    if (myBullet[0]) {
+    if (myBullet[0]) 
+	{
         //Check Border and Bullet Collision
         if (myBullet[0].body.blocked.left || myBullet[0].body.blocked.right || myBullet[0].body.blocked.up || myBullet[0].body.blocked.down) {
             myBullet[1]--;
@@ -84,14 +100,40 @@ function checkBulletCollison(myBullet) {
         game.physics.arcade.collide(myBullet[0], player, bpCollision);
 
         //Check Bullet and Bullet Collision
-        try {
+        try 
+		{
             game.physics.arcade.collide(myBullet[0], bulletsGroup, bbCollision);
-        } catch (err) {
+        } 
+		catch (err) 
+		{
             console.log(err.message);
         }
 
         game.physics.arcade.collide(myBullet[0], enemiesGroup, beCollision);
+		
+		//Reflection Check without using physics
+		if(myArc && myBullet[0])
+		{
+			if(checkOverlap(myBullet[0],myArc))
+			{
+				reflect(myBullet[0]);
+				relfectFlag = 1;
+			}
+		}
     }
+}
+
+function checkOverlap(spriteA, spriteB) 
+{
+    var boundsA = spriteA.getBounds();
+    var boundsB = spriteB.getBounds();
+    return Phaser.Rectangle.intersects(boundsA, boundsB);
+}
+
+function reflect(b)
+{
+	//bulletSearchDestroy(b);
+	game.physics.arcade.moveToXY(b, game.input.mousePointer.x, game.input.mousePointer.y, bulletSpeed * 1.25);
 }
 
 function bpCollision(b) {
@@ -150,8 +192,35 @@ function movePlayer() {
     arrow.rotation = game.physics.arcade.angleToPointer(arrow);
 
     //Create Bullet on Click
-    game.input.onDown.add(Shoot, this);
+    game.input.activePointer.leftButton.onDown.add(slash, this);
 }
+
+function slash()
+{
+	if(player)
+	{
+		var graphics = game.add.graphics(player.position.x, player.position.y);
+		graphics.boundsPadding = 0;
+		graphics.alpha= 0.5;
+		var angle = game.physics.arcade.angleToPointer(arrow);
+		graphics.beginFill(0xff0000);
+		graphics.arc(0, 0, 135,angle-game.math.degToRad(90), angle+game.math.degToRad(90), false);
+		graphics.endFill();
+		
+		myArc = game.add.sprite(player.position.x, player.position.y, graphics.generateTexture());
+		myArc.anchor.setTo(0.5, 0.5);
+		myArc.alpha = 0.5;
+
+		graphics.lifespan = 1;
+		setTimeout(function()
+		{
+			myArc.destroy();
+			myArc = null;
+		},100);
+	}
+}
+
+
 
 function Shoot() {
     if (player)
