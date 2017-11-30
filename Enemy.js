@@ -20,8 +20,8 @@ function Enemy(x, y, attackSpeed = 2880, ammo = 2) {
     game.physics.arcade.enable(enemy);
 
     enemy.body.collideWorldBounds = true;
-    //not to bounce on collision
-    enemy.body.drag.setTo(100);
+    //slow enemy bodies when collide until stop
+    enemy.body.bounce.set(0.9);
     //set anchor at gun nozzle
     enemy.anchor.setTo(0.93, 0.73);
     enemy.scale.setTo(0.5, 0.5);
@@ -57,7 +57,20 @@ function Enemy(x, y, attackSpeed = 2880, ammo = 2) {
         enemy.rotation = angleDiff;
         if (this.shootNow <= 0) {
             this.shootNow = attackSpeed;
-            shoot();
+            var lineOfFire = new Phaser.Rectangle(enemy.x, enemy.y, player.x, player.y);
+
+            var friendlyFire = false;
+            for (var i = 0; i < myEnemies.length; i++) {
+                var cEnemy = myEnemies[i].getSprite();
+                if (cEnemy != enemy) {
+                    if (Phaser.Rectangle.intersects(lineOfFire, cEnemy.getBounds())) {
+                        friendlyFire = true;
+                    }
+                }
+            }
+            if (!friendlyFire) {
+                shoot();
+            }
         }
     }
     this.die = function() {
