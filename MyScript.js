@@ -4,7 +4,7 @@ var speed = 200;
 var bulletSpeed = 500;
 var myArc;
 //Pad Variables
-var padAimX, padAimY, pressFlagA = 0;
+var padAimX, padAimY, pressFlagR1 = 0;
 var relfectFlag = 0;
 
 function preload() {
@@ -95,8 +95,8 @@ function checkBulletCollison(myBullet) {
                 myBullet[0] = null;
             }
         }
-        //Check Playerr and Bullet Collision
-        //game.physics.arcade.collide(myBullet[0], player, bpCollision);
+        //Check Player and Bullet Collision
+        game.physics.arcade.collide(myBullet[0], player, bpCollision);
 
         //Check Bullet and Bullet Collision
         try {
@@ -123,9 +123,12 @@ function checkOverlap(spriteA, spriteB) {
     return Phaser.Rectangle.intersects(boundsA, boundsB);
 }
 
-function reflect(b) {
+function reflect(b) 
+{
     //bulletSearchDestroy(b);
-    game.physics.arcade.moveToXY(b, game.input.mousePointer.x, game.input.mousePointer.y, bulletSpeed * 1.25);
+	b.body.velocity.y *= -1;
+	b.body.velocity.x *= -1;
+    //game.physics.arcade.moveToXY(b, b.position.x-player.position.x, b.position.y-player.position.y, bulletSpeed * 1.25);
 }
 
 function bpCollision(b) {
@@ -198,9 +201,12 @@ function slash()
 	{
 		var graphics = game.add.graphics(player.position.x, player.position.y);
 		graphics.alpha= 0.0;
+		//Use with Keyboard
 		var angle = game.physics.arcade.angleToPointer(arrow);
+		//Use with Gamepad
+		//var angle = game.physics.arcade.angleToXY(arrow,padAimX,padAimY);
 		graphics.lineStyle(15, 0xff0000);
-		graphics.arc(0, 0, 135,angle-game.math.degToRad(90), angle+game.math.degToRad(90), false);
+		graphics.arc(0, 0, 170,angle-game.math.degToRad(45), angle+game.math.degToRad(45), false);
 		
 		myArc = game.add.sprite(player.position.x, player.position.y, graphics.generateTexture());
 		myArc.anchor.setTo(0.5, 0.5);
@@ -259,12 +265,12 @@ function movePlayerPad() {
         padAimY = player.position.y + 1;
         arrow.rotation = game.physics.arcade.angleToXY(arrow, padAimX, padAimY);
     }
-    if (pad1.justPressed(Phaser.Gamepad.XBOX360_A)) {
-        pressFlagA = 1;
+    if (pad1.justPressed(Phaser.Gamepad.XBOX360_RIGHT_BUMPER)) {
+        pressFlagR1 = 1;
     }
-    if (pad1.justReleased(Phaser.Gamepad.XBOX360_A) && pressFlagA) {
-        Shoot();
-        pressFlagA = 0;
+    if (pad1.justReleased(Phaser.Gamepad.XBOX360_RIGHT_BUMPER) && pressFlagR1) {
+        slash();
+        pressFlagR1 = 0;
     }
 }
 
