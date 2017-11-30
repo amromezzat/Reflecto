@@ -146,23 +146,27 @@ function checkOverlap(spriteA, spriteB) {
 
 function reflect(b) 
 {
-	var xdir,ydir,norm;
-	if(padFlag)
+	if(player)
 	{
-		xdir = (padAimX+lastpadAimX) - player.position.x;
-		ydir = (padAimY+lastpadAimY) - player.position.y;
+		var xdir,ydir,norm;
+		if(padFlag)
+		{
+			xdir = (padAimX+lastpadAimX) - player.position.x;
+			ydir = (padAimY+lastpadAimY) - player.position.y;
+		}
+		else
+		{
+			xdir = game.input.mousePointer.x - player.position.x;
+			ydir = game.input.mousePointer.y - player.position.y;	
+		}
+		
+		norm = Math.sqrt((xdir*xdir)+(ydir*ydir));
+		xdir = xdir/norm;
+		ydir = ydir/norm;
+		b.body.velocity.x = xdir * (bulletSpeed * 1.25);
+		b.body.velocity.y = ydir * (bulletSpeed * 1.25);
 	}
-	else
-	{
-		xdir = game.input.mousePointer.x - player.position.x;
-		ydir = game.input.mousePointer.y - player.position.y;	
-	}
-	
-	norm = Math.sqrt((xdir*xdir)+(ydir*ydir));
-	xdir = xdir/norm;
-	ydir = ydir/norm;
-	b.body.velocity.x = xdir * (bulletSpeed * 1.25);
-    b.body.velocity.y = ydir * (bulletSpeed * 1.25);
+
 }
 
 function bpCollision(b) {
