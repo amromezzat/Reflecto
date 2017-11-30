@@ -7,7 +7,8 @@ var myArc, relfectFlag = 0;
 var padAimX, padAimY, lastpadAimX=0, lastpadAimY=0, pressFlagR1 = 0, padFlag = 0;
 
 
-function preload() {
+function preload() 
+{
     game.load.image('player', 'assets/sprites/player.png');
     game.load.image('bullet', 'assets/sprites/bullet.png');
     game.load.image('arrow', 'assets/sprites/arrow.png');
@@ -48,8 +49,12 @@ function create() {
     rightButton = game.input.keyboard.addKey(Phaser.Keyboard.D);
 
     //Gamepad 
-    game.input.gamepad.start();
-    pad1 = game.input.gamepad.pad1;
+	if(padFlag)
+	{
+		game.input.gamepad.start();
+		pad1 = game.input.gamepad.pad1;
+	}
+
 	
     //Create Enimes
     enemy2 = new Enemy(200, 200)
@@ -60,8 +65,18 @@ function create() {
 
 function update() {
     if (player) {
-        for (let i = 0; i < myEnemies.length; i++) {
-            myEnemies[i].update(player)
+        for (let i = 0; i < myEnemies.length; i++) 
+		{
+            myEnemies[i].update(player);
+			if (myArc && myEnemies[i]) 
+			{
+				if (checkOverlap(myEnemies[i].getSprite(), myArc)) 
+				{
+					console.log("Enemy Attacked");
+					myEnemies[i].die();
+					myEnemies.splice(i, 1);
+				}
+			}
         }
 
         //Choose Between Keyboard or Gamepad
@@ -86,6 +101,8 @@ function update() {
     }
     //enemies collide
     game.physics.arcade.collide(enemiesGroup, enemiesGroup);
+	
+
 }
 
 function checkBulletCollison(myBullet) {
@@ -315,7 +332,8 @@ function movePlayerPad() {
 	arrow.rotation = game.physics.arcade.angleToXY(arrow, padAimX+lastpadAimX, padAimY+lastpadAimY);
 }
 
-function slowTime() {
+function slowTime() 
+{
     for (let i = 0; i < myEnemies.length; i++) {
         myEnemies[i].animSpeed = 10
     }
@@ -323,7 +341,8 @@ function slowTime() {
     game.time.desiredFps = 360;
 }
 
-function resetTime() {
+function resetTime() 
+{
     for (let i = 0; i < myEnemies.length; i++) {
         myEnemies[i].animSpeed = 60
     }
