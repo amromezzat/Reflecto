@@ -20,6 +20,8 @@ function Enemy(x, y, attackSpeed = 2880, ammo = 2) {
     game.physics.arcade.enable(enemy);
 
     enemy.body.collideWorldBounds = true;
+    //not to bounce on collision
+    enemy.body.drag.setTo(100);
     //set anchor at gun nozzle
     enemy.anchor.setTo(0.93, 0.73);
     enemy.scale.setTo(0.5, 0.5);
@@ -40,8 +42,9 @@ function Enemy(x, y, attackSpeed = 2880, ammo = 2) {
         var bulletArr = [bullet, 3];
         myBullets.push(bulletArr);
     }
+
     this.update = function(player) {
-        this.shootNow -= this.animSpeed;
+        this.shootNow -= this.animSpeed * game.rnd.realInRange(-1, 3);
         enemy.animations.currentAnim.speed = this.animSpeed;
         var angleDiff = game.physics.arcade.angleBetween(enemy, player);
         var ecu1 = Math.abs(enemy.x * Math.cos(angleDiff) - enemy.x)
@@ -65,7 +68,7 @@ function Enemy(x, y, attackSpeed = 2880, ammo = 2) {
         dieAnim.onComplete.add(function() {
             //set dead enemy animation
             enemy.frame = 80;
-            enemy.body.velocity.setTo(0, 0)
+            enemy.body.velocity.setTo(0, 0);
             enemy.body.enable = false;
             //destory enemy spirit and remove it from group collision after anime finishes
             //enemiesGroup.remove(enemy);
@@ -79,7 +82,7 @@ function Enemy(x, y, attackSpeed = 2880, ammo = 2) {
             x: game.rnd.integerInRange(150, 600),
             y: game.rnd.integerInRange(150, 400)
         }, 7500, Phaser.Easing.Linear.None, true, 1500);
-        moveCase.onComplete.add(function(dad) {
+        moveCase.onComplete.add(function() {
             enemy.animations.play('idle', 60, true);
             move();
         }, this);
@@ -93,9 +96,10 @@ function Enemy(x, y, attackSpeed = 2880, ammo = 2) {
             shootAnim.onComplete.add(function() {
                 //if there is still ammo continue last animation idle or move
                 //or shoot lock and play reloading animation
-                if (this.ammo > 0) {
-                    if (this.lastAnim)
+                if (this.ammo >= 0) {
+                    if (this.lastAnim) {
                         this.lastAnim.play();
+                    }
                 } else {
                     this.reloading = true;
                     var reload = enemy.animations.play('reload', this.animSpeed, false);
@@ -103,7 +107,7 @@ function Enemy(x, y, attackSpeed = 2880, ammo = 2) {
                     reload.onComplete.add(function() {
                         this.ammo = ammo;
                         this.reloading = false;
-                    }, this)
+                    }, this);
                 }
             }, this);
         }

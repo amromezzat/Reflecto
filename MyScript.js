@@ -59,7 +59,6 @@ function create() {
 }
 
 function update() {
-
     if (player) {
         for (let i = 0; i < myEnemies.length; i++) {
             myEnemies[i].update(player)
@@ -83,6 +82,8 @@ function update() {
         myArc = null;
         relfectFlag = 0;
     }
+    //enemies collide
+    game.physics.arcade.collide(enemiesGroup, enemiesGroup);
 }
 
 function checkBulletCollison(myBullet) {
@@ -105,6 +106,7 @@ function checkBulletCollison(myBullet) {
             console.log(err.message);
         }
 
+        //check bullet and enemy collision
         game.physics.arcade.collide(myBullet[0], enemiesGroup, beCollision);
 
         //Reflection Check without using physics
@@ -123,11 +125,10 @@ function checkOverlap(spriteA, spriteB) {
     return Phaser.Rectangle.intersects(boundsA, boundsB);
 }
 
-function reflect(b) 
-{
+function reflect(b) {
     //bulletSearchDestroy(b);
-	b.body.velocity.y *= -1;
-	b.body.velocity.x *= -1;
+    b.body.velocity.y *= -1;
+    b.body.velocity.x *= -1;
     //game.physics.arcade.moveToXY(b, b.position.x-player.position.x, b.position.y-player.position.y, bulletSpeed * 1.25);
 }
 
@@ -195,33 +196,29 @@ function movePlayer() {
 
 }
 
-function slash()
-{
-	if(player)
-	{
-		var graphics = game.add.graphics(player.position.x, player.position.y);
-		graphics.alpha= 0.0;
-		//Use with Keyboard
-		var angle = game.physics.arcade.angleToPointer(arrow);
-		//Use with Gamepad
-		//var angle = game.physics.arcade.angleToXY(arrow,padAimX,padAimY);
-		graphics.lineStyle(15, 0xff0000);
-		graphics.arc(0, 0, 170,angle-game.math.degToRad(45), angle+game.math.degToRad(45), false);
-		
-		myArc = game.add.sprite(player.position.x, player.position.y, graphics.generateTexture());
-		myArc.anchor.setTo(0.5, 0.5);
-		myArc.alpha = 0.3;
+function slash() {
+    if (player) {
+        var graphics = game.add.graphics(player.position.x, player.position.y);
+        graphics.alpha = 0.0;
+        //Use with Keyboard
+        var angle = game.physics.arcade.angleToPointer(arrow);
+        //Use with Gamepad
+        //var angle = game.physics.arcade.angleToXY(arrow,padAimX,padAimY);
+        graphics.lineStyle(15, 0xff0000);
+        graphics.arc(0, 0, 170, angle - game.math.degToRad(45), angle + game.math.degToRad(45), false);
 
-		graphics.lifespan = 1;
-		setTimeout(function()
-		{
-			if(myArc)
-			{
-				myArc.destroy();
-				myArc = null;
-			}
-		},100);
-	}
+        myArc = game.add.sprite(player.position.x, player.position.y, graphics.generateTexture());
+        myArc.anchor.setTo(0.5, 0.5);
+        myArc.alpha = 0.3;
+
+        graphics.lifespan = 1;
+        setTimeout(function() {
+            if (myArc) {
+                myArc.destroy();
+                myArc = null;
+            }
+        }, 100);
+    }
 }
 
 function movePlayerPad() {
