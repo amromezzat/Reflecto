@@ -25,14 +25,14 @@ function create() {
     enemiesGroup = game.add.group();
 
     //Create Player
-    player = game.add.sprite(600, 600, 'player');
+    player = game.add.sprite(200, 400, 'player');
     player.anchor.setTo(0.5, 0.5);
     player.scale.setTo(0.5, 0.5);
     game.physics.arcade.enable(player);
     player.body.collideWorldBounds = true;
 
     //Create Arrow
-    arrow = game.add.sprite(600, 600, 'arrow');
+    arrow = game.add.sprite(200, 400, 'arrow');
     arrow.anchor.setTo(0, 0.5);
     arrow.scale.setTo(0.05, 0.05);
     game.physics.arcade.enable(arrow);
@@ -48,12 +48,16 @@ function create() {
     game.input.gamepad.start();
     pad1 = game.input.gamepad.pad1;
     //creating enemies
-    enemy = new Enemy(200, 200)
-    myEnemies.push(enemy)
+    enemy2 = new Enemy(200, 200)
+    enemy1 = new Enemy(600, 200)
+    myEnemies.push(enemy2)
+    myEnemies.push(enemy1)
 }
 
 function update() {
-    enemy.update(player)
+    for (let i = 0; i < myEnemies.length; i++) {
+        myEnemies[i].update(player)
+    }
     if (player) {
         //Choose Between Keyboard or Gamepad
         movePlayer();
@@ -114,14 +118,20 @@ function beCollision(b, e) {
             myEnemies.splice(i, 1);
         }
     }
+
     bulletSearchDestroy(b);
+
 }
 
 function bulletSearchDestroy(bullet) {
     for (let i = 0; i < myBullets.length; i++) {
         if (myBullets[i][0] == bullet) {
-            myBullets[i][0].destroy();
-            myBullets[i][0] = null;
+            bullet.body.enable = false;
+            bulletsGroup.remove(bullet);
+            setTimeout(function() {
+                bullet.destroy();
+            }, 100);
+            myBullets.splice(i, 1);
         }
     }
 }
@@ -209,13 +219,17 @@ function movePlayerPad() {
 }
 
 function slowTime() {
-    enemy.animSpeed = 10
+    for (let i = 0; i < myEnemies.length; i++) {
+        myEnemies[i].animSpeed = 10
+    }
     game.time.slowMotion = 6;
     game.time.desiredFps = 360;
 }
 
 function resetTime() {
-    enemy.animSpeed = 60
+    for (let i = 0; i < myEnemies.length; i++) {
+        myEnemies[i].animSpeed = 60
+    }
     game.time.slowMotion = 1;
     game.time.desiredFps = 60;
 }
