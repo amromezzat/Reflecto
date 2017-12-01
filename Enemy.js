@@ -3,10 +3,10 @@ var enemiesGroup;
 
 function Enemy(x, y, attackSpeed = 2880, clipSize = 2, bulletSpeed = 500) {
     this.shootNow = attackSpeed;
-    this.clipSize = clipSize;
+    this.ammo = clipSize;
     this.animSpeed = 10;
     this.reloading = false;
-    var reloadingTimeout;
+    var reloadingTimeout = 30 / this.animSpeed;
     var moveCase;
     var enemy = game.add.sprite(x, y, 'enemy');
     //enemy animations
@@ -21,16 +21,16 @@ function Enemy(x, y, attackSpeed = 2880, clipSize = 2, bulletSpeed = 500) {
 
     enemy.body.collideWorldBounds = true;
     //slow enemy bodies when collide until stop
-    enemy.body.bounce.set(0.9);
+    enemy.body.bounce.set(0.1);
     //set anchor at gun nozzle
     enemy.anchor.setTo(0.93, 0.73);
     enemy.scale.setTo(0.5, 0.5);
+    game.world.bringToTop(enemy);
     enemiesGroup.add(enemy);
     move();
 
     this.update = function(player) {
         this.animSpeed = this.animSpeed || 60;
-        reloadingTimeout = 2880 / this.animSpeed;
         this.shootNow -= this.animSpeed * game.rnd.realInRange(-1, 4);
         enemy.animations.currentAnim.speed = this.animSpeed;
         var angleDiff = game.physics.arcade.angleBetween(enemy, player);
@@ -60,6 +60,7 @@ function Enemy(x, y, attackSpeed = 2880, clipSize = 2, bulletSpeed = 500) {
             }
         }
     }
+
     this.die = function() {
         var dieAnim = enemy.animations.play('die', this.animSpeed, false);
         this.update = function() {};
@@ -70,6 +71,7 @@ function Enemy(x, y, attackSpeed = 2880, clipSize = 2, bulletSpeed = 500) {
             enemy.frame = 80;
             enemy.body.velocity.setTo(0, 0);
             enemy.body.enable = false;
+            game.world.sendToBack(enemy);
             //destory enemy spirit and remove it from group collision after anime finishes
             //enemiesGroup.remove(enemy);
             //enemy.destroy();
@@ -90,22 +92,26 @@ function Enemy(x, y, attackSpeed = 2880, clipSize = 2, bulletSpeed = 500) {
 
     function shoot(player) {
         if (this.reloading) {
+            console.log("timeout:" + reloadingTimeout)
+            console.log("relo:" + this.reloading)
+            console.log("clipSize:" + this.ammo)
             reloadingTimeout--;
-            if (reloadingTimeout <= 0) {
-                reloadingTimeout = 1000 / this.animSpeed;
+            if (!reloadingTimeout || reloadingTimeout <= 0) {
+                reloadingTimeout = 30 / this.animSpeed;
                 this.reloading = false;
-                this.clipSize = clipSize;
+                this.ammo = clipSize;
             }
         } else {
-            reloadingTimeout = 1000 / this.animSpeed;
-            this.clipSize--;
+            reloadingTimeout = this.animSpeed / this.animSpeed;
+            this.ammo--;
             var shootAnim = enemy.animations.play('shoot', this.animSpeed, false);
             //create bullet sprite directed at enemy
-            new Bullet(enemy.x + 2, enemy.y + 2, player);
+            var bullet = new Bullet(enemy.x + 2, enemy.y + 2, player);
+            myBullets.push(bullet);
             shootAnim.onComplete.add(function() {
                 //if there is still ammo continue last animation idle or move
                 //or shoot lock and play reloading animation
-                if (this.clipSize >= 0) {
+                if (this.ammo >= 0) {
                     if (this.lastAnim) {
                         this.lastAnim.play();
                     } else {
@@ -116,13 +122,14 @@ function Enemy(x, y, attackSpeed = 2880, clipSize = 2, bulletSpeed = 500) {
                     var reload = enemy.animations.play('reload', this.animSpeed, false);
                     //on reload finish reset clipSize value and remove the lock
                     reload.onComplete.add(function() {
-                        this.clipSize = clipSize;
+                        this.ammo = clipSize;
                         this.reloading = false;
                     }, this);
                 }
             }, this);
         }
     }
+
     this.getSprite = function() {
         return enemy;
     }

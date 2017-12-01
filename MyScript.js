@@ -2,6 +2,7 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create
 var player, arrow, cursors, upButton, downButton, leftButton, rightButton;
 var speed = 200;
 var myArc, relfectFlag = 0;
+var items
 //Pad Variables
 var padAimX, padAimY, lastpadAimX = 0,
     lastpadAimY = 0,
@@ -10,9 +11,15 @@ var padAimX, padAimY, lastpadAimX = 0,
 
 
 function preload() {
+    game.load.image('fire1', 'assets/sprites/fire1.png');
+    game.load.image('fire2', 'assets/sprites/fire2.png');
+    game.load.image('fire3', 'assets/sprites/fire3.png');
+    game.load.image('smoke', 'assets/sprites/smoke-puff.png');
+    game.load.image('cloud', 'assets/sprites/cloud.png');
     game.load.image('floor', 'assets/sprites/floor.png');
     game.load.image('player', 'assets/sprites/player.png');
-    game.load.image('bullet', 'assets/sprites/bullet.png');
+    game.load.image('bullet1', 'assets/sprites/bullet1.png');
+    game.load.image('bullet2', 'assets/sprites/bullet2.png');
     game.load.image('arrow', 'assets/sprites/arrow.png');
     game.load.spritesheet('enemy', 'assets/sprites/enemy.png', 313, 207)
 }
@@ -36,12 +43,12 @@ function create() {
     player.scale.setTo(0.5, 0.5);
     game.physics.arcade.enable(player);
     player.body.collideWorldBounds = true;
+    game.world.bringToTop(player);
 
     //Create Arrow
     arrow = game.add.sprite(200, 400, 'arrow');
     arrow.anchor.setTo(0, 0.5);
     arrow.scale.setTo(0.05, 0.05);
-    game.physics.arcade.enable(arrow);
     game.physics.arcade.enable(arrow);
 
     //Keyboard and Mouse
@@ -71,13 +78,15 @@ function update() {
             myEnemies[i].update(player);
             if (myArc && myEnemies[i]) {
                 if (checkOverlap(myEnemies[i].getSprite(), myArc)) {
-                    console.log("Enemy Attacked");
+                    //console.log("Enemy Attacked");
                     myEnemies[i].die();
                     myEnemies.splice(i, 1);
                 }
             }
         }
-
+        for (let i = 0; i < myBullets.length; i++) {
+            myBullets[i].update();
+        }
         //Choose Between Keyboard or Gamepad
         if (padFlag)
             movePlayerPad();
@@ -105,32 +114,33 @@ function update() {
 }
 
 function checkBulletCollison(myBullet) {
-    if (myBullet[0]) {
+    var bulletSprite = myBullet.getSprite();
+    if (bulletSprite) {
         //Check Border and Bullet Collision
-        if (myBullet[0].body.blocked.left || myBullet[0].body.blocked.right || myBullet[0].body.blocked.up || myBullet[0].body.blocked.down) {
-            myBullet[1]--;
-            if (myBullet[1] == 0) {
-                myBullet[0].destroy();
-                myBullet[0] = null;
+        if (bulletSprite.body.blocked.left || bulletSprite.body.blocked.right ||
+            bulletSprite.body.blocked.up || bulletSprite.body.blocked.down) {
+            myBullet.wallHitCount--;
+            if (myBullet.wallHitCount == 0) {
+                bulletSearchDestroy(bulletSprite);
             }
         }
         //Check Player and Bullet Collision
-        game.physics.arcade.collide(myBullet[0], player, bpCollision);
+        game.physics.arcade.collide(bulletSprite, player, bpCollision);
 
         //Check Bullet and Bullet Collision
         try {
-            game.physics.arcade.collide(myBullet[0], bulletsGroup, bbCollision);
+            game.physics.arcade.collide(bulletSprite, bulletsGroup, bbCollision);
         } catch (err) {
             console.log(err.message);
         }
 
         //check bullet and enemy collision
-        game.physics.arcade.collide(myBullet[0], enemiesGroup, beCollision);
+        game.physics.arcade.collide(bulletSprite, enemiesGroup, beCollision);
 
         //Reflection Check without using physics
-        if (myArc && myBullet[0]) {
-            if (checkOverlap(myBullet[0], myArc)) {
-                reflect(myBullet[0]);
+        if (myArc && bulletSprite) {
+            if (checkOverlap(bulletSprite, myArc)) {
+                reflect(myBullet);
                 relfectFlag = 1;
             }
         }
@@ -157,8 +167,10 @@ function reflect(b) {
         norm = Math.sqrt((xdir * xdir) + (ydir * ydir));
         xdir = xdir / norm;
         ydir = ydir / norm;
-        b.body.velocity.x = xdir * (Bullet.speed * 1.25);
-        b.body.velocity.y = ydir * (Bullet.speed * 1.25);
+        b.getSprite().body.velocity.x = xdir * (Bullet.speed * 1.25);
+        b.getSprite().body.velocity.y = ydir * (Bullet.speed * 1.25);
+
+        b.reflect();
     }
 
 }
@@ -188,7 +200,8 @@ function beCollision(b, e) {
 
 function bulletSearchDestroy(bullet) {
     for (let i = 0; i < myBullets.length; i++) {
-        if (myBullets[i][0] == bullet) {
+        if (myBullets[i].getSprite() == bullet) {
+            myBullets[i].destroy();
             bullet.body.enable = false;
             bulletsGroup.remove(bullet);
             setTimeout(function() {
