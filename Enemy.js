@@ -1,12 +1,12 @@
-var myBullets = [],
-    myEnemies = [];
-var bulletsGroup, enemiesGroup;
+var myEnemies = [];
+var enemiesGroup;
 
-function Enemy(x, y, attackSpeed = 2880, ammo = 2) {
+function Enemy(x, y, attackSpeed = 2880, clipSize = 2, bulletSpeed = 500) {
     this.shootNow = attackSpeed;
-    this.ammo = ammo;
+    this.clipSize = clipSize;
     this.animSpeed = 10;
     this.reloading = false;
+    var reloadingTimeout;
     var moveCase;
     var enemy = game.add.sprite(x, y, 'enemy');
     //enemy animations
@@ -25,25 +25,12 @@ function Enemy(x, y, attackSpeed = 2880, ammo = 2) {
     //set anchor at gun nozzle
     enemy.anchor.setTo(0.93, 0.73);
     enemy.scale.setTo(0.5, 0.5);
-    enemy.events.onAnimationComplete.add(function() { console.log("complete") }, this);
     enemiesGroup.add(enemy);
     move();
 
-    function createBullet() {
-        var bullet = game.add.sprite(enemy.x + 2, enemy.y + 2, 'bullet');
-        bullet.anchor.setTo(0.5, 0.5);
-        bullet.scale.setTo(0.25, 0.25);
-        game.physics.arcade.enable(bullet);
-        bullet.body.collideWorldBounds = true;
-        bullet.body.bounce.setTo(1.0, 1.0);
-        //Move bullet to Player Location (Our Main Usage)
-        game.physics.arcade.moveToObject(bullet, player, bulletSpeed);
-        bulletsGroup.add(bullet);
-        var bulletArr = [bullet, 3];
-        myBullets.push(bulletArr);
-    }
-
     this.update = function(player) {
+        this.animSpeed = this.animSpeed || 60;
+        reloadingTimeout = 2880 / this.animSpeed;
         this.shootNow -= this.animSpeed * game.rnd.realInRange(-1, 4);
         enemy.animations.currentAnim.speed = this.animSpeed;
         var angleDiff = game.physics.arcade.angleBetween(enemy, player);
@@ -55,7 +42,7 @@ function Enemy(x, y, attackSpeed = 2880, ammo = 2) {
         enemy.body.setCircle(60, ecu1 / 2, ecu2 / 2);
         //game.debug.body(enemy);
         enemy.rotation = angleDiff;
-        if (this.shootNow <= 0) {
+        if (!this.shootNow || this.shootNow <= 0) {
             this.shootNow = attackSpeed;
             var lineOfFire = new Phaser.Rectangle(enemy.x, enemy.y, player.x, player.y);
 
@@ -69,7 +56,7 @@ function Enemy(x, y, attackSpeed = 2880, ammo = 2) {
                 }
             }
             if (!friendlyFire) {
-                shoot();
+                shoot(player);
             }
         }
     }
@@ -101,24 +88,35 @@ function Enemy(x, y, attackSpeed = 2880, ammo = 2) {
         }, this);
     }
 
-    function shoot() {
-        if (!this.reloading) {
-            this.ammo--;
+    function shoot(player) {
+        if (this.reloading) {
+            reloadingTimeout--;
+            if (reloadingTimeout <= 0) {
+                reloadingTimeout = 1000 / this.animSpeed;
+                this.reloading = false;
+                this.clipSize = clipSize;
+            }
+        } else {
+            reloadingTimeout = 1000 / this.animSpeed;
+            this.clipSize--;
             var shootAnim = enemy.animations.play('shoot', this.animSpeed, false);
-            createBullet();
+            //create bullet sprite directed at enemy
+            new Bullet(enemy.x + 2, enemy.y + 2, player);
             shootAnim.onComplete.add(function() {
                 //if there is still ammo continue last animation idle or move
                 //or shoot lock and play reloading animation
-                if (this.ammo >= 0) {
+                if (this.clipSize >= 0) {
                     if (this.lastAnim) {
                         this.lastAnim.play();
+                    } else {
+                        enemy.animations.play('idle', this.animSpeed, true);
                     }
                 } else {
                     this.reloading = true;
                     var reload = enemy.animations.play('reload', this.animSpeed, false);
-                    //on reload finish reset ammo value and remove the lock
+                    //on reload finish reset clipSize value and remove the lock
                     reload.onComplete.add(function() {
-                        this.ammo = ammo;
+                        this.clipSize = clipSize;
                         this.reloading = false;
                     }, this);
                 }

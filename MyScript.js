@@ -1,7 +1,6 @@
 var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 var player, arrow, cursors, upButton, downButton, leftButton, rightButton;
 var speed = 200;
-var bulletSpeed = 500;
 var myArc, relfectFlag = 0;
 //Pad Variables
 var padAimX, padAimY, lastpadAimX = 0,
@@ -158,8 +157,8 @@ function reflect(b) {
         norm = Math.sqrt((xdir * xdir) + (ydir * ydir));
         xdir = xdir / norm;
         ydir = ydir / norm;
-        b.body.velocity.x = xdir * (bulletSpeed * 1.25);
-        b.body.velocity.y = ydir * (bulletSpeed * 1.25);
+        b.body.velocity.x = xdir * (Bullet.speed * 1.25);
+        b.body.velocity.y = ydir * (Bullet.speed * 1.25);
     }
 
 }
@@ -323,7 +322,7 @@ function movePlayerPad() {
 
 function slowTime() {
     for (let i = 0; i < myEnemies.length; i++) {
-        myEnemies[i].animSpeed = 10
+        myEnemies[i].animSpeed = 10;
     }
     game.time.slowMotion = 6;
     game.time.desiredFps = 360;
@@ -331,7 +330,7 @@ function slowTime() {
 
 function resetTime() {
     for (let i = 0; i < myEnemies.length; i++) {
-        myEnemies[i].animSpeed = 60
+        myEnemies[i].animSpeed = 60;
     }
     game.time.slowMotion = 1;
     game.time.desiredFps = 60;
