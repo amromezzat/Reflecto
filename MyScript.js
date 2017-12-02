@@ -205,8 +205,10 @@ function bulletSearchDestroy(bullet) {
             bullet.body.enable = false;
             setTimeout(function() {
                 bulletsGroup.remove(bullet);
-                myBullets.splice(i, 1);
+                bullet.destroy();
             }, 100);
+
+            myBullets.splice(i, 1);
         }
     }
 }

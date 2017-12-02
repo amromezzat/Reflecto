@@ -17,8 +17,7 @@ function Bullet(x, y, attendedSprite) {
     var trailEmitter = makeEmitter(['cloud'], 0.2);
 
     this.update = function() {
-        if (trailEmitter)
-            updateEmitter();
+        updateEmitter();
     }
 
     this.getSprite = function() {
@@ -27,15 +26,12 @@ function Bullet(x, y, attendedSprite) {
     this.destroy = function() {
         game.time.events.add(Phaser.Timer.SECOND * 1, function() {
             this.update = function() {};
-            if (trailEmitter)
-                trailEmitter.destroy();
+            trailEmitter.destroy();
         }, this);
     }
     this.reflect = function() {
-        if (trailEmitter)
-            trailEmitter.destroy();
-        if (bullet)
-            bulletsGroup.remove(bullet);
+        trailEmitter.destroy();
+        bulletsGroup.remove(bullet);
         bullet.loadTexture('bullet2');
         bulletsGroup.add(bullet);
         trailEmitter = makeEmitter(['fire1', 'fire2', 'fire3', 'smoke'], 0.4);
