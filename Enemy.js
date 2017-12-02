@@ -14,7 +14,7 @@ function Enemy(x, y, attackSpeed = 2880, clipSize = 2, bulletSpeed = 500) {
     enemy.animations.add('move', Phaser.ArrayUtils.numberArray(20, 39));
     enemy.animations.add('reload', Phaser.ArrayUtils.numberArray(40, 59));
     enemy.animations.add('shoot', Phaser.ArrayUtils.numberArray(60, 62));
-    enemy.animations.add('die', Phaser.ArrayUtils.numberArray(63, 77));
+    enemy.animations.add('die', Phaser.ArrayUtils.numberArray(63, 80));
     this.lastAnim = enemy.animations.play('idle', 60, true);
 
     game.physics.arcade.enable(enemy);
@@ -67,7 +67,7 @@ function Enemy(x, y, attackSpeed = 2880, clipSize = 2, bulletSpeed = 500) {
         moveCase.stop();
         dieAnim.onComplete.add(function() {
             //set dead enemy animation
-            enemy.frame = 77;
+            enemy.frame = 80;
             enemy.body.velocity.setTo(0, 0);
             enemy.body.enable = false;
             game.world.sendToBack(enemy);

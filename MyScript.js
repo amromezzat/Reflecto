@@ -185,9 +185,11 @@ function update() {
 function enemyCollide(enemy1, enemy2) {
     for (let i = 0; i < myEnemies.length; i++) {
         if (myEnemies[i].getSprite() == enemy1) {
-            myEnemies[i].move();
+            enemy1.x = enemy1.x - 1;
+            enemy1.y = enemy1.y - 1;
         } else if (myEnemies[i].getSprite() == enemy2) {
-            myEnemies[i].move();
+            enemy2.x = enemy2.x + 1;
+            enemy2.y = enemy2.y + 1;
         }
     }
 }
