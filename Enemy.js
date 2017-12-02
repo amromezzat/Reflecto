@@ -21,15 +21,15 @@ function Enemy(x, y, attackSpeed = 2880, clipSize = 2, bulletSpeed = 500) {
 
     enemy.body.collideWorldBounds = true;
     //slow enemy bodies when collide until stop
-    enemy.body.bounce.set(0.1);
+    enemy.body.bounce.set(0.5);
     //set anchor at gun nozzle
     enemy.anchor.setTo(0.93, 0.73);
     enemy.scale.setTo(0.5, 0.5);
-    game.world.bringToTop(enemy);
     enemiesGroup.add(enemy);
     move();
 
     this.update = function(player) {
+        game.world.bringToTop(enemy);
         this.animSpeed = this.animSpeed || 60;
         this.shootNow -= this.animSpeed * game.rnd.realInRange(-1, 4);
         enemy.animations.currentAnim.speed = this.animSpeed;
@@ -63,7 +63,7 @@ function Enemy(x, y, attackSpeed = 2880, clipSize = 2, bulletSpeed = 500) {
 
     this.die = function() {
         var dieAnim = enemy.animations.play('die', this.animSpeed, false);
-        this.update = function() {};
+        this.update = function() { game.world.sendToBack(enemy); };
         this.shoot = function() {};
         moveCase.stop();
         dieAnim.onComplete.add(function() {

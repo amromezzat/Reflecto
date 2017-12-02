@@ -44,7 +44,7 @@ function Bullet(x, y, attendedSprite) {
         emitter.setAlpha(alpha, 0, 3000);
         emitter.setScale(0.1, 0, 0.1, 0, 3000);
         emitter.maxParticleSpeed = 0;
-        emitter.particleSendToBack = true;
+        emitter.particleSendToBack = false;
         emitter.start(false, 250, 0);
         return emitter;
     }
