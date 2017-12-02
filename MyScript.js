@@ -203,11 +203,10 @@ function bulletSearchDestroy(bullet) {
         if (myBullets[i].getSprite() == bullet) {
             myBullets[i].destroy();
             bullet.body.enable = false;
-            bulletsGroup.remove(bullet);
             setTimeout(function() {
-                bullet.destroy();
+                bulletsGroup.remove(bullet);
+                myBullets.splice(i, 1);
             }, 100);
-            myBullets.splice(i, 1);
         }
     }
 }

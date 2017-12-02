@@ -92,9 +92,9 @@ function Enemy(x, y, attackSpeed = 2880, clipSize = 2, bulletSpeed = 500) {
 
     function shoot(player) {
         if (this.reloading) {
-            console.log("timeout:" + reloadingTimeout)
-            console.log("relo:" + this.reloading)
-            console.log("clipSize:" + this.ammo)
+            // console.log("timeout:" + reloadingTimeout)
+            // console.log("relo:" + this.reloading)
+            // console.log("clipSize:" + this.ammo)
             reloadingTimeout--;
             if (!reloadingTimeout || reloadingTimeout <= 0) {
                 reloadingTimeout = 30 / this.animSpeed;
