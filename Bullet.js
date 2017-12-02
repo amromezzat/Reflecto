@@ -1,9 +1,9 @@
 var myBullets = [];
 var bulletsGroup;
 
-function Bullet(x, y, attendedSprite) {
+function Bullet(x, y, rotation, attendedSprite) {
 
-    var bullet = game.add.sprite(x, y, 'bullet1');
+    var bullet = game.add.sprite(x + (x * Math.cos(rotation)) / 4, y + (y * Math.sin(rotation)) / 4, 'bullet1');
     this.wallHitCount = 3;
     bullet.anchor.setTo(0.5, 0.5);
     bullet.scale.setTo(0.25, 0.25);
@@ -34,7 +34,7 @@ function Bullet(x, y, attendedSprite) {
         bulletsGroup.remove(bullet);
         bullet.loadTexture('bullet2');
         bulletsGroup.add(bullet);
-        trailEmitter = makeEmitter(['fire1', 'fire2', 'fire3', 'smoke'], 0.4);
+        trailEmitter = makeEmitter(['fire1', 'fire2', 'fire3', 'smoke'], 0.6);
     }
 
     function makeEmitter(frames, alpha = 0.6) {
@@ -42,14 +42,15 @@ function Bullet(x, y, attendedSprite) {
         emitter.makeParticles(frames, 0, 250, true, true);
         emitter.gravity = 200;
         emitter.setAlpha(alpha, 0, 3000);
-        emitter.setScale(0.1, 0, 0.1, 0, 3000);
+        emitter.setScale(0.15, 0, 0.15, 0, 3000);
         emitter.maxParticleSpeed = 0;
-        emitter.particleSendToBack = false;
+        emitter.particleBringToTop = true;
         emitter.start(false, 250, 0);
         return emitter;
     }
 
     function updateEmitter() {
+        game.world.bringToTop(trailEmitter);
         //show trailEmittering path after bullet
         var px = bullet.body.velocity.x;
         var py = bullet.body.velocity.y;

@@ -2,13 +2,14 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create
 var player, arrow, cursors, upButton, downButton, leftButton, rightButton;
 var speed = 200;
 var myArc, relfectFlag = 0;
-var items
 //Pad Variables
 var padAimX, padAimY, lastpadAimX = 0,
     lastpadAimY = 0,
     pressFlagR1 = 0,
     padFlag = 0;
 
+var alive = true;
+var wonText;
 
 function preload() {
     game.load.image('fire1', 'assets/sprites/fire1.png');
@@ -22,6 +23,8 @@ function preload() {
     game.load.image('bullet2', 'assets/sprites/bullet2.png');
     game.load.image('arrow', 'assets/sprites/arrow.png');
     game.load.spritesheet('enemy', 'assets/sprites/enemy.png', 313, 207)
+    game.load.bitmapFont('desyrel', 'assets/fonts/desyrel.png', 'assets/fonts/desyrel.xml');
+    game.load.bitmapFont('stack', 'assets/fonts/shortStack.png', 'assets/fonts/shortStack.xml');
 }
 
 function create() {
@@ -73,6 +76,17 @@ function create() {
 }
 
 function update() {
+    game.world.bringToTop(bulletsGroup);
+    if (!alive) {
+        game.add.bitmapText(game.world.centerX / 3, game.world.centerY / 1.4, 'desyrel', 'You lost noob!', 100);
+        if (wonText) {
+            wonText.destroy();
+        }
+    } else if (myEnemies.length == 0) {
+        if (!wonText) {
+            wonText = game.add.bitmapText(game.world.centerX / 3.5, game.world.centerY / 1.2, 'stack', 'You won noob!', 80);
+        }
+    }
     if (player) {
         for (let i = 0; i < myEnemies.length; i++) {
             myEnemies[i].update(player);
@@ -109,9 +123,19 @@ function update() {
         relfectFlag = 0;
     }
     //enemies collide
-    game.physics.arcade.collide(enemiesGroup, enemiesGroup);
+    game.physics.arcade.collide(enemiesGroup, enemiesGroup, enemyCollide);
 
 
+}
+
+function enemyCollide(enemy1, enemy2) {
+    for (let i = 0; i < myEnemies.length; i++) {
+        if (myEnemies[i].getSprite() == enemy1) {
+            myEnemies[i].move();
+        } else if (myEnemies[i].getSprite() == enemy2) {
+            myEnemies[i].move();
+        }
+    }
 }
 
 function checkBulletCollison(myBullet) {
@@ -182,6 +206,8 @@ function bpCollision(b) {
     arrow.destroy();
     arrow = null;
     bulletSearchDestroy(b);
+    alive = false;
+
 }
 
 function bbCollision(b1, b2) {
