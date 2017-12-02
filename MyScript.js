@@ -52,13 +52,14 @@ function spriteFromAngle(angle) {
 
 function generateSprite(player) {
     var positionArray = [
-        "right", "top-right", "top", "top-left", "left", "bot-left", "bot", "bot-right"
+        "bot", "bot-right", "right", "top-right", "top", "top-left", "left", "bot-left"
     ]
     var i = 0;
     positionArray.forEach(function(position) {
         player.animations.add(position, Phaser.ArrayUtils.numberArray(i, i + 3));
         player.animations.add(position + '-die', [i + 4]);
         player.animations.add(position + '-slash', [(i + 11) % 48, i + 5, i - 1 > 0 ? i - 1 : 47]);
+        i += 6;
     });
 }
 
