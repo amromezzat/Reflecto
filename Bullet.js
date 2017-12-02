@@ -27,7 +27,8 @@ function Bullet(x, y, attendedSprite) {
     this.destroy = function() {
         game.time.events.add(Phaser.Timer.SECOND * 1, function() {
             this.update = function() {};
-            trailEmitter.destroy();
+            if (trailEmitter)
+                trailEmitter.destroy();
         }, this);
     }
     this.reflect = function() {
