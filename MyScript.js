@@ -11,6 +11,8 @@ var padAimX, padAimY, lastpadAimX = 0,
 var alive = true;
 var wonText;
 
+var slashFlag = false;
+
 function preload() {
     game.load.image('fire1', 'assets/sprites/fire1.png');
     game.load.image('fire2', 'assets/sprites/fire2.png');
@@ -23,7 +25,7 @@ function preload() {
     game.load.image('bullet2', 'assets/sprites/bullet2.png');
     game.load.image('arrow', 'assets/sprites/arrow.png');
     game.load.spritesheet('enemy', 'assets/sprites/enemy.png', 313, 207);
-    game.load.spritesheet('player', 'assets/sprites/player.png', 100, 100);
+    game.load.spritesheet('player1', 'assets/sprites/player1.png', 100, 100);
     game.load.bitmapFont('desyrel', 'assets/fonts/desyrel.png', 'assets/fonts/desyrel.xml');
     game.load.bitmapFont('stack', 'assets/fonts/shortStack.png', 'assets/fonts/shortStack.xml');
 }
@@ -89,20 +91,20 @@ function create() {
     enemiesGroup = game.add.group();
 
     //Create Player
-    player = game.add.sprite(200, 400, 'player');
+    player = game.add.sprite(200, 400, 'player1');
     generateSprite(player);
-    player.animations.play('bot-left-slash', 4, true);
+    player.animations.play('bot', 4, true);
 
     player.anchor.setTo(0.5, 0.5);
     player.scale.setTo(0.5, 0.5);
     game.physics.arcade.enable(player);
     player.body.collideWorldBounds = true;
-    game.world.bringToTop(player);
 
     //Create Arrow
     arrow = game.add.sprite(200, 400, 'arrow');
     arrow.anchor.setTo(0, 0.5);
     arrow.scale.setTo(0.05, 0.05);
+    arrow.alpha = 0.5;
     game.physics.arcade.enable(arrow);
 
     //Keyboard and Mouse
@@ -139,12 +141,13 @@ function update() {
         }
     }
     if (player) {
+        game.world.bringToTop(player);
         for (let i = 0; i < myEnemies.length; i++) {
             myEnemies[i].update(player);
             if (myArc && myEnemies[i]) {
-				
+
                 if (checkOverlap(myEnemies[i].getSprite(), myArc)) {
-                    console.log("Enemy Attacked");
+                    //console.log("Enemy Attacked");
                     myEnemies[i].die();
                     myEnemies.splice(i, 1);
                 }
@@ -252,13 +255,14 @@ function reflect(b) {
 }
 
 function bpCollision(b) {
-    player.destroy();
+    player.animations.play(spriteFromAngle(Phaser.Math.radToDeg(arrow.rotation)) + "-die", 0, false);
+    player.body.velocity.setTo(0, 0);
+    //player.destroy();
     player = null;
     arrow.destroy();
     arrow = null;
     bulletSearchDestroy(b);
     alive = false;
-
 }
 
 function bbCollision(b1, b2) {
@@ -313,7 +317,10 @@ function movePlayer() {
 
     //Control Arrow Direction
     arrow.rotation = game.physics.arcade.angleToPointer(arrow);
-    console.log(spriteFromAngle(Phaser.Math.radToDeg(arrow.rotation)));
+    //console.log(spriteFromAngle(Phaser.Math.radToDeg(arrow.rotation)));
+    if (!slashFlag) {
+        player.animations.play(spriteFromAngle(Phaser.Math.radToDeg(arrow.rotation)), 4, true);
+    }
 
     //Create Bullet on Click
     game.input.activePointer.leftButton.onDown.add(slash, this);
@@ -322,23 +329,29 @@ function movePlayer() {
 
 function slash() {
     if (player) {
+        slashFlag = true;
+        var playerSlash = player.animations.play(spriteFromAngle(Phaser.Math.radToDeg(arrow.rotation)) + "-slash", 10, false);
+        playerSlash.onComplete.add(function() {
+            slashFlag = false;
+        }, this);
         var graphics = game.add.graphics(player.position.x, player.position.y);
         graphics.alpha = 0.0;
         if (padFlag)
             var angle = game.physics.arcade.angleToXY(arrow, padAimX + lastpadAimX, padAimY + lastpadAimY); //Use with Gamepad
         else
             var angle = game.physics.arcade.angleToPointer(arrow); //Use with Keyboard
-		graphics.beginFill(0xFF3300);
-        graphics.arc(0, 0, 50, angle - game.math.degToRad(135), angle + game.math.degToRad(135), false);
-		graphics.endFill();
+        graphics.beginFill(0xFF3300);
+        graphics.arc(0, 0, 40, angle - game.math.degToRad(135), angle + game.math.degToRad(135), false);
+        graphics.endFill();
         myArc = game.add.sprite(player.position.x, player.position.y, graphics.generateTexture());
         myArc.anchor.setTo(0.5, 0.5);
         myArc.alpha = 0.3;
         graphics.lifespan = 1;
-		myArc.lifespan = 50;
+        myArc.lifespan = 50;
+
         /*setTimeout(function() {
             if (myArc) 
-			{
+            {
                 myArc.destroy();
                 myArc = null;
             }

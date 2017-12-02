@@ -14,7 +14,7 @@ function Enemy(x, y, attackSpeed = 2880, clipSize = 2, bulletSpeed = 500) {
     enemy.animations.add('move', Phaser.ArrayUtils.numberArray(20, 39));
     enemy.animations.add('reload', Phaser.ArrayUtils.numberArray(40, 59));
     enemy.animations.add('shoot', Phaser.ArrayUtils.numberArray(60, 62));
-    enemy.animations.add('die', Phaser.ArrayUtils.numberArray(63, 81));
+    enemy.animations.add('die', Phaser.ArrayUtils.numberArray(63, 77));
     this.lastAnim = enemy.animations.play('idle', 60, true);
 
     game.physics.arcade.enable(enemy);
@@ -25,7 +25,7 @@ function Enemy(x, y, attackSpeed = 2880, clipSize = 2, bulletSpeed = 500) {
     //set anchor at gun nozzle
     //enemy.anchor.setTo(0.93, 0.73);
     enemy.anchor.setTo(0.304, 0.58);
-    enemy.scale.setTo(0.5, 0.5);
+    enemy.scale.setTo(0.4, 0.4);
     enemiesGroup.add(enemy);
 
     this.update = function(player) {
@@ -38,7 +38,7 @@ function Enemy(x, y, attackSpeed = 2880, clipSize = 2, bulletSpeed = 500) {
         //set collision range in a movable circle with rotation
         ecu1 = ecu1 / 2 < enemy.x + 200 ? ecu1 * 2 : ecu1;
         ecu1 = ecu1 / 2 > 600 ? ecu1 / 2 : ecu1;
-        enemy.body.setCircle(60);
+        enemy.body.setCircle(80);
         game.debug.body(enemy);
         enemy.rotation = angleDiff;
         if (!this.shootNow || this.shootNow <= 0) {
@@ -67,7 +67,7 @@ function Enemy(x, y, attackSpeed = 2880, clipSize = 2, bulletSpeed = 500) {
         moveCase.stop();
         dieAnim.onComplete.add(function() {
             //set dead enemy animation
-            enemy.frame = 80;
+            enemy.frame = 77;
             enemy.body.velocity.setTo(0, 0);
             enemy.body.enable = false;
             game.world.sendToBack(enemy);
