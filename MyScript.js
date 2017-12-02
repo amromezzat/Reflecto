@@ -77,8 +77,9 @@ function update() {
         for (let i = 0; i < myEnemies.length; i++) {
             myEnemies[i].update(player);
             if (myArc && myEnemies[i]) {
+				
                 if (checkOverlap(myEnemies[i].getSprite(), myArc)) {
-                    //console.log("Enemy Attacked");
+                    console.log("Enemy Attacked");
                     myEnemies[i].die();
                     myEnemies.splice(i, 1);
                 }
@@ -245,26 +246,25 @@ function slash() {
     if (player) {
         var graphics = game.add.graphics(player.position.x, player.position.y);
         graphics.alpha = 0.0;
-
         if (padFlag)
             var angle = game.physics.arcade.angleToXY(arrow, padAimX + lastpadAimX, padAimY + lastpadAimY); //Use with Gamepad
         else
             var angle = game.physics.arcade.angleToPointer(arrow); //Use with Keyboard
-
-        graphics.lineStyle(72, 0xff0000);
-        graphics.arc(0, 0, 90, angle - game.math.degToRad(36), angle + game.math.degToRad(36), false);
-
+		graphics.beginFill(0xFF3300);
+        graphics.arc(0, 0, 50, angle - game.math.degToRad(135), angle + game.math.degToRad(135), false);
+		graphics.endFill();
         myArc = game.add.sprite(player.position.x, player.position.y, graphics.generateTexture());
         myArc.anchor.setTo(0.5, 0.5);
         myArc.alpha = 0.3;
-
         graphics.lifespan = 1;
-        setTimeout(function() {
-            if (myArc) {
+		myArc.lifespan = 50;
+        /*setTimeout(function() {
+            if (myArc) 
+			{
                 myArc.destroy();
                 myArc = null;
             }
-        }, 100);
+        }, 2000);*/
     }
 }
 
