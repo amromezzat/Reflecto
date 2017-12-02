@@ -21,15 +21,14 @@ function Enemy(x, y, attackSpeed = 2880, clipSize = 2, bulletSpeed = 500) {
 
     enemy.body.collideWorldBounds = true;
     //slow enemy bodies when collide until stop
-    enemy.body.bounce.set(0.5);
+    // enemy.body.bounce.set(0.5);
     //set anchor at gun nozzle
-    enemy.anchor.setTo(0.93, 0.73);
+    //enemy.anchor.setTo(0.93, 0.73);
+    enemy.anchor.setTo(0.304, 0.58);
     enemy.scale.setTo(0.5, 0.5);
     enemiesGroup.add(enemy);
-    move();
 
     this.update = function(player) {
-        game.world.bringToTop(enemy);
         this.animSpeed = this.animSpeed || 60;
         this.shootNow -= this.animSpeed * game.rnd.realInRange(-1, 4);
         enemy.animations.currentAnim.speed = this.animSpeed;
@@ -39,8 +38,8 @@ function Enemy(x, y, attackSpeed = 2880, clipSize = 2, bulletSpeed = 500) {
         //set collision range in a movable circle with rotation
         ecu1 = ecu1 / 2 < enemy.x + 200 ? ecu1 * 2 : ecu1;
         ecu1 = ecu1 / 2 > 600 ? ecu1 / 2 : ecu1;
-        enemy.body.setCircle(60, ecu1 / 2, ecu2 / 2);
-        //game.debug.body(enemy);
+        enemy.body.setCircle(60);
+        game.debug.body(enemy);
         enemy.rotation = angleDiff;
         if (!this.shootNow || this.shootNow <= 0) {
             this.shootNow = attackSpeed;
@@ -78,7 +77,7 @@ function Enemy(x, y, attackSpeed = 2880, clipSize = 2, bulletSpeed = 500) {
         }, this);
     }
 
-    function move() {
+    this.move = function() {
         enemy.animations.play('move', 60, true);
         moveCase = game.add.tween(enemy).to({
             x: game.rnd.integerInRange(150, 600),
@@ -86,7 +85,7 @@ function Enemy(x, y, attackSpeed = 2880, clipSize = 2, bulletSpeed = 500) {
         }, 7500, Phaser.Easing.Linear.None, true, 1500);
         moveCase.onComplete.add(function() {
             enemy.animations.play('idle', 60, true);
-            move();
+            this.move();
         }, this);
     }
 
@@ -106,7 +105,7 @@ function Enemy(x, y, attackSpeed = 2880, clipSize = 2, bulletSpeed = 500) {
             this.ammo--;
             var shootAnim = enemy.animations.play('shoot', this.animSpeed, false);
             //create bullet sprite directed at enemy
-            var bullet = new Bullet(enemy.x + 2, enemy.y + 2, player);
+            var bullet = new Bullet(enemy.x + 2, enemy.y + 2, enemy.rotation, player);
             myBullets.push(bullet);
             shootAnim.onComplete.add(function() {
                 //if there is still ammo continue last animation idle or move
@@ -133,4 +132,5 @@ function Enemy(x, y, attackSpeed = 2880, clipSize = 2, bulletSpeed = 500) {
     this.getSprite = function() {
         return enemy;
     }
+    this.move();
 }
