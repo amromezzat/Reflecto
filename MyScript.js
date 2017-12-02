@@ -20,7 +20,6 @@ function preload() {
     game.load.image('smoke', 'assets/sprites/smoke-puff.png');
     game.load.image('cloud', 'assets/sprites/cloud.png');
     game.load.image('floor', 'assets/sprites/floor.png');
-    //game.load.image('player', 'assets/sprites/player.png');
     game.load.image('bullet1', 'assets/sprites/bullet1.png');
     game.load.image('bullet2', 'assets/sprites/bullet2.png');
     game.load.image('arrow', 'assets/sprites/arrow.png');
@@ -52,30 +51,15 @@ function spriteFromAngle(angle) {
 }
 
 function generateSprite(player) {
-    player.animations.add('bot', Phaser.ArrayUtils.numberArray(0, 3));
-    player.animations.add('bot-die', [4]);
-    player.animations.add('bot-slash', [11, 5, 47]);
-    player.animations.add('bot-right', Phaser.ArrayUtils.numberArray(6, 9));
-    player.animations.add('bot-right-die', [10]);
-    player.animations.add('bot-right-slash', [17, 11, 5]);
-    player.animations.add('right', Phaser.ArrayUtils.numberArray(12, 15));
-    player.animations.add('right-die', [16]);
-    player.animations.add('right-slash', [23, 17, 11]);
-    player.animations.add('top-right', Phaser.ArrayUtils.numberArray(18, 21));
-    player.animations.add('top-right-die', [22]);
-    player.animations.add('top-right-slash', [29, 23, 17]);
-    player.animations.add('top', Phaser.ArrayUtils.numberArray(24, 27));
-    player.animations.add('top-die', [28]);
-    player.animations.add('top-slash', [35, 29, 23]);
-    player.animations.add('top-left', Phaser.ArrayUtils.numberArray(30, 33));
-    player.animations.add('top-left-die', [34]);
-    player.animations.add('top-left-slash', [41, 35, 29]);
-    player.animations.add('left', Phaser.ArrayUtils.numberArray(36, 39));
-    player.animations.add('left-die', [40]);
-    player.animations.add('left-slash', [47, 41, 35]);
-    player.animations.add('bot-left', Phaser.ArrayUtils.numberArray(42, 45));
-    player.animations.add('bot-left-die', [46]);
-    player.animations.add('bot-left-slash', [5, 47, 41]);
+    var positionArray = [
+        "right", "top-right", "top", "top-left", "left", "bot-left", "bot", "bot-right"
+    ]
+    var i = 0;
+    positionArray.forEach(function(position) {
+        player.animations.add(position, Phaser.ArrayUtils.numberArray(i, i + 3));
+        player.animations.add(position + '-die', [i + 4]);
+        player.animations.add(position + '-slash', [(i + 11) % 48, i + 5, i - 1 > 0 ? i - 1 : 47]);
+    });
 }
 
 function create() {
