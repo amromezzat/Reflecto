@@ -34,9 +34,11 @@ function Enemy(x, y, fireRate = 2880, clipSize = 2, bulletSpeed = 500, movementS
     //enemy.anchor.setTo(0.93, 0.73);
     enemy.anchor.setTo(0.304, 0.58);
     enemy.scale.setTo(0.4, 0.4);
+	enemy.body.bounce.setTo(0.2, 0.2);
     enemiesGroup.add(enemy);
 
-    this.update = function(player) {
+    this.update = function(player) 
+	{
         //this.animSpeed = this.animSpeed || 60;
         this.shootNow -= this.animSpeed * game.rnd.realInRange(-1, 4);
         enemy.animations.currentAnim.speed = this.animSpeed;
