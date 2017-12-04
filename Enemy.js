@@ -7,7 +7,7 @@ function Enemy(x, y, attackSpeed = 2880, clipSize = 2, bulletSpeed = 500) {
     this.animSpeed = 10;
     this.reloading = false;
     var reloadingTimeout = 30 / this.animSpeed;
-    var moveCase;
+    this.moveCase;
     var enemy = game.add.sprite(x, y, 'enemy');
     //enemy animations
     enemy.animations.add('idle', Phaser.ArrayUtils.numberArray(0, 19));
@@ -29,17 +29,13 @@ function Enemy(x, y, attackSpeed = 2880, clipSize = 2, bulletSpeed = 500) {
     enemiesGroup.add(enemy);
 
     this.update = function(player) {
-        this.animSpeed = this.animSpeed || 60;
+        //this.animSpeed = this.animSpeed || 60;
         this.shootNow -= this.animSpeed * game.rnd.realInRange(-1, 4);
         enemy.animations.currentAnim.speed = this.animSpeed;
         var angleDiff = game.physics.arcade.angleBetween(enemy, player);
-        var ecu1 = Math.abs(enemy.x * Math.cos(angleDiff) - enemy.x)
-        var ecu2 = Math.abs(enemy.y * Math.sin(angleDiff) - enemy.y)
         //set collision range in a movable circle with rotation
-        ecu1 = ecu1 / 2 < enemy.x + 200 ? ecu1 * 2 : ecu1;
-        ecu1 = ecu1 / 2 > 600 ? ecu1 / 2 : ecu1;
         enemy.body.setCircle(80);
-        game.debug.body(enemy);
+        //game.debug.body(enemy);
         enemy.rotation = angleDiff;
         if (!this.shootNow || this.shootNow <= 0) {
             this.shootNow = attackSpeed;
@@ -64,7 +60,7 @@ function Enemy(x, y, attackSpeed = 2880, clipSize = 2, bulletSpeed = 500) {
         var dieAnim = enemy.animations.play('die', this.animSpeed, false);
         this.update = function() { game.world.sendToBack(enemy); };
         this.shoot = function() {};
-        moveCase.stop();
+        this.moveCase.stop();
         dieAnim.onComplete.add(function() {
             //set dead enemy animation
             enemy.frame = 80;
@@ -78,13 +74,15 @@ function Enemy(x, y, attackSpeed = 2880, clipSize = 2, bulletSpeed = 500) {
     }
 
     this.move = function() {
-        enemy.animations.play('move', 60, true);
-        moveCase = game.add.tween(enemy).to({
+        var animSpeed = this.animSpeed;
+        //console.log(this.animSpeed)
+        enemy.animations.play('move', animSpeed, true);
+        this.moveCase = game.add.tween(enemy).to({
             x: game.rnd.integerInRange(150, 600),
             y: game.rnd.integerInRange(150, 400)
         }, 7500, Phaser.Easing.Linear.None, true, 1500);
-        moveCase.onComplete.add(function() {
-            enemy.animations.play('idle', 60, true);
+        this.moveCase.onComplete.add(function() {
+            enemy.animations.play('idle', animSpeed, true);
             this.move();
         }, this);
     }
@@ -133,4 +131,6 @@ function Enemy(x, y, attackSpeed = 2880, clipSize = 2, bulletSpeed = 500) {
         return enemy;
     }
     this.move();
+    if (this.moveCase)
+        this.moveCase.frameBased = true;
 }

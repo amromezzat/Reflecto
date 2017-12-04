@@ -78,7 +78,7 @@ function create() {
     //Create Player
     player = game.add.sprite(200, 400, 'player1');
     generateSprite(player);
-    player.animations.play('bot', 4, true);
+    //player.animations.play('bot', 4, true);
 
     player.anchor.setTo(0.5, 0.5);
     player.scale.setTo(0.5, 0.5);
@@ -116,12 +116,21 @@ function create() {
 function update() {
     game.world.bringToTop(bulletsGroup);
     if (!alive) {
+        for (var i = 0; i < myEnemies.length; i++) {
+            myEnemies[i].moveCase.pause();
+        }
         game.add.bitmapText(game.world.centerX / 3, game.world.centerY / 1.4, 'desyrel', 'You lost noob!', 100);
         if (wonText) {
             wonText.destroy();
         }
     } else if (myEnemies.length == 0) {
         if (!wonText) {
+            movePlayer = function() {};
+            slash = function() {};
+            player.body.enable = false;
+            player.x = game.world.centerX;
+            player.y = game.world.centerY * 1.5;
+            player.animations.play("bot", 4, true);
             wonText = game.add.bitmapText(game.world.centerX / 3.5, game.world.centerY / 1.2, 'stack', 'You won noob!', 80);
         }
     }
@@ -170,11 +179,11 @@ function update() {
 function enemyCollide(enemy1, enemy2) {
     for (let i = 0; i < myEnemies.length; i++) {
         if (myEnemies[i].getSprite() == enemy1) {
-            enemy1.x = enemy1.x - 1;
-            enemy1.y = enemy1.y - 1;
+            enemy1.x = enemy1.x - 6;
+            enemy1.y = enemy1.y - 6;
         } else if (myEnemies[i].getSprite() == enemy2) {
-            enemy2.x = enemy2.x + 1;
-            enemy2.y = enemy2.y + 1;
+            enemy2.x = enemy2.x + 6;
+            enemy2.y = enemy2.y + 6;
         }
     }
 }
@@ -283,10 +292,9 @@ function bulletSearchDestroy(bullet) {
 }
 
 function movePlayer() {
-    slowTime();
     player.body.velocity.x = 0;
     player.body.velocity.y = 0;
-
+    slowTime();
     if (upButton.isDown) {
         player.body.velocity.y = -speed;
         resetTime();
@@ -426,4 +434,5 @@ function resetTime() {
     }
     game.time.slowMotion = 1;
     game.time.desiredFps = 60;
+
 }
