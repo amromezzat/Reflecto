@@ -1,4 +1,4 @@
-var game = new Phaser.Game(800, 600, Phaser.Physics.ARCADE, '', { preload: preload, create: create, update: update });
+var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 var player, arrow, cursors, upButton, downButton, leftButton, rightButton;
 var speed = 200;
 var myArc, relfectFlag = 0;
