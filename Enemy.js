@@ -1,8 +1,16 @@
 var myEnemies = [];
 var enemiesGroup;
-
-function Enemy(x, y, attackSpeed = 2880, clipSize = 2, bulletSpeed = 500) {
-    this.shootNow = attackSpeed;
+/*///////////////////
+/x:enemy x position
+/y: enemy y position
+/fireRate: enemy fire rate
+/clipSize: number of bullets shoot before reload
+/bulletSpeed: the speed of fired bullet
+/movementSpeed: the speed of the enemy movement
+/restDuration: the time the enemy stops before starting to move again
+///////////////////*/
+function Enemy(x, y, fireRate = 2880, clipSize = 2, bulletSpeed = 500, movementSpeed = 7500, restDuration = 1500) {
+    this.shootNow = fireRate;
     this.ammo = clipSize;
     this.animSpeed = 10;
     this.reloading = false;
@@ -38,7 +46,7 @@ function Enemy(x, y, attackSpeed = 2880, clipSize = 2, bulletSpeed = 500) {
         //game.debug.body(enemy);
         enemy.rotation = angleDiff;
         if (!this.shootNow || this.shootNow <= 0) {
-            this.shootNow = attackSpeed;
+            this.shootNow = fireRate;
             var lineOfFire = new Phaser.Rectangle(enemy.x, enemy.y, player.x, player.y);
 
             var friendlyFire = false;
@@ -80,7 +88,7 @@ function Enemy(x, y, attackSpeed = 2880, clipSize = 2, bulletSpeed = 500) {
         this.moveCase = game.add.tween(enemy).to({
             x: game.rnd.integerInRange(150, 600),
             y: game.rnd.integerInRange(150, 400)
-        }, 7500, Phaser.Easing.Linear.None, true, 1500);
+        }, movementSpeed, Phaser.Easing.Linear.None, true, restDuration);
         this.moveCase.onComplete.add(function() {
             enemy.animations.play('idle', animSpeed, true);
             this.move();
