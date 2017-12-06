@@ -14,24 +14,36 @@ var wonText;
 
 var slashFlag = false;
 
+var explosion;
+var swordReflect;
+var blaster;
+
 function preload() {
+    game.load.audio('explosion', 'assets/audio/explosion.mp3');
+    game.load.audio('reflect', 'assets/audio/reflect.mp3');
+    game.load.audio('blaster', 'assets/audio/blaster.mp3');
     game.load.image('fire1', 'assets/sprites/fire1.png');
     game.load.image('fire2', 'assets/sprites/fire2.png');
     game.load.image('fire3', 'assets/sprites/fire3.png');
     game.load.image('smoke', 'assets/sprites/smoke-puff.png');
     game.load.image('cloud', 'assets/sprites/cloud.png');
-    game.load.image('floor', 'assets/sprites/floor.png');
     game.load.image('bullet1', 'assets/sprites/bullet1.png');
     game.load.image('bullet2', 'assets/sprites/bullet2.png');
     game.load.image('arrow', 'assets/sprites/arrow.png');
-    game.load.spritesheet('enemy', 'assets/sprites/enemy.png', 313, 207);
+    game.load.spritesheet('enemy', 'assets/sprites/enemy.png', 100, 100);
     game.load.spritesheet('player1', 'assets/sprites/player1.png', 100, 100);
     game.load.bitmapFont('desyrel', 'assets/fonts/desyrel.png', 'assets/fonts/desyrel.xml');
     game.load.bitmapFont('stack', 'assets/fonts/shortStack.png', 'assets/fonts/shortStack.xml');
     game.load.audio('explosion', 'assets/audio/explosion.mp3'); ///
 }
 
-function spriteFromAngle(angle) {
+function playAudio(sound, v = 1, m = false) {
+    sound.mute = m;
+    sound.volume = v;
+    sound.play();
+}
+
+function spriteDirecFromAngle(angle) {
     if (angle >= -22.5 && angle <= 22.5) {
         return "right";
     } else if (angle > -45 - 22.5 && angle < -45 + 22.5) {
@@ -52,16 +64,18 @@ function spriteFromAngle(angle) {
     }
 }
 
-function generateSprite(player) {
+function generateSprite(sprite, forPlayer = true) {
     var positionArray = [
         "bot", "bot-right", "right", "top-right", "top", "top-left", "left", "bot-left"
     ]
     var i = 0;
-    positionArray.forEach(function(position) 
-	{
-        player.animations.add(position, Phaser.ArrayUtils.numberArray(i, i + 3));
-        player.animations.add(position + '-die', [i + 4]);
-        player.animations.add(position + '-slash', [(i + 11) % 48, i + 5, i - 1 > 0 ? i - 1 : 47]);
+    positionArray.forEach(function(position) {
+        sprite.animations.add(position, Phaser.ArrayUtils.numberArray(i, i + 3));
+        sprite.animations.add(position + '-die', [i + 4]);
+        if (forPlayer)
+            sprite.animations.add(position + '-slash', [(i + 11) % 48, i + 5, i - 1 > 0 ? i - 1 : 47]);
+        else
+            sprite.animations.add(position + '-shoot', [i + 5]);
         i += 6;
     });
 }
@@ -74,6 +88,11 @@ function create() {
     game.scale.pageAlignVertically = true;
     game.scale.refresh();
 
+    //load used audio
+    explosion = game.add.audio('explosion');
+    swordReflect = game.add.audio('reflect');
+    blaster = game.add.audio('blaster');
+
     //Create Groups
     bulletsGroup = game.add.group();
     enemiesGroup = game.add.group();
@@ -83,10 +102,9 @@ function create() {
     generateSprite(player);
     //player.animations.play('bot', 4, true);
     player.anchor.setTo(0.5, 0.5);
-    player.scale.setTo(0.5, 0.5);
+    //player.scale.setTo(0.5, 0.5);
     game.physics.arcade.enable(player);
-	player.body.setCircle(35,15,3);
-	//player.body.anchor.setTo
+    player.body.setCircle(35, 15, 3);
     player.body.collideWorldBounds = true;
 
     //Create Arrow
@@ -122,7 +140,7 @@ function update() {
     game.world.bringToTop(bulletsGroup);
     if (!alive) {
         for (var i = 0; i < myEnemies.length; i++) {
-            myEnemies[i].moveCase.pause();
+            myEnemies[i].movement.pause();
         }
         game.add.bitmapText(game.world.centerX / 3, game.world.centerY / 1.4, 'desyrel', 'You lost noob!', 100);
         if (wonText) {
@@ -139,15 +157,12 @@ function update() {
             wonText = game.add.bitmapText(game.world.centerX / 3.5, game.world.centerY / 1.2, 'stack', 'You won noob!', 80);
         }
     }
-    if (player) 
-	{
-		//game.debug.body(player);
+    if (player) {
+        //game.debug.body(player);
         game.world.bringToTop(player);
-        for (let i = 0; i < myEnemies.length; i++) 
-		{
+        for (let i = 0; i < myEnemies.length; i++) {
             myEnemies[i].update(player);
-            if (myArc && myEnemies[i]) 
-			{
+            if (myArc && myEnemies[i]) {
                 if (checkOverlap(myEnemies[i].getSprite(), myArc)) {
                     //console.log("Enemy Attacked");
                     myEnemies[i].die();
@@ -155,10 +170,10 @@ function update() {
                 }
             }
         }
-        for (let i = 0; i < myBullets.length; i++) 
-		{
+        for (let i = 0; i < myBullets.length; i++) {
             myBullets[i].update();
         }
+
         //Choose Between Keyboard or Gamepad
         if (padFlag)
             movePlayerPad();
@@ -179,21 +194,11 @@ function update() {
         myArc = null;
         relfectFlag = 0;
     }
-    //enemies collide
-    game.physics.arcade.collide(enemiesGroup, enemiesGroup, enemyCollide);
-
-
-}
-
-function enemyCollide(enemy1, enemy2) 
-{
-//todo
 }
 
 function checkBulletCollison(myBullet) {
     var bulletSprite = myBullet.getSprite();
-    if (bulletSprite) 
-	{
+    if (bulletSprite) {
         //Check Border and Bullet Collision
         if (bulletSprite.body.blocked.left || bulletSprite.body.blocked.right ||
             bulletSprite.body.blocked.up || bulletSprite.body.blocked.down) {
@@ -213,14 +218,12 @@ function checkBulletCollison(myBullet) {
         }
 
         //check bullet and enemy collision
-		if(myBullet.reflected)
-			game.physics.arcade.collide(bulletSprite, enemiesGroup, beCollision);
+        if (myBullet.reflected)
+            game.physics.arcade.collide(bulletSprite, enemiesGroup, beCollision);
 
         //Reflection Check without using physics
-        if (myArc && bulletSprite) 
-		{
-            if (checkOverlap(bulletSprite, myArc)) 
-			{
+        if (myArc && bulletSprite) {
+            if (checkOverlap(bulletSprite, myArc)) {
                 reflect(myBullet);
                 relfectFlag = 1;
             }
@@ -228,16 +231,15 @@ function checkBulletCollison(myBullet) {
     }
 }
 
-function checkOverlap(spriteA, spriteB) 
-{
+function checkOverlap(spriteA, spriteB) {
     var boundsA = spriteA.getBounds();
     var boundsB = spriteB.getBounds();
     return Phaser.Rectangle.intersects(boundsA, boundsB);
 }
 
-function reflect(b) 
-{
+function reflect(b) {
     if (player) {
+        playAudio(swordReflect, 0.1);
         var xdir, ydir, norm;
         if (padFlag) {
             xdir = (padAimX + lastpadAimX) - player.position.x;
@@ -259,7 +261,7 @@ function reflect(b)
 }
 
 function bpCollision(b) {
-    player.animations.play(spriteFromAngle(Phaser.Math.radToDeg(arrow.rotation)) + "-die", 0, false);
+    player.animations.play(spriteDirecFromAngle(Phaser.Math.radToDeg(arrow.rotation)) + "-die", 1, false);
     player.body.velocity.setTo(0, 0);
     //player.destroy();
     player = null;
@@ -269,8 +271,7 @@ function bpCollision(b) {
     alive = false;
 }
 
-function bbCollision(b1, b2) 
-{
+function bbCollision(b1, b2) {
     bulletSearchDestroy(b1);
     bulletSearchDestroy(b2);
 }
@@ -321,9 +322,9 @@ function movePlayer() {
 
     //Control Arrow Direction
     arrow.rotation = game.physics.arcade.angleToPointer(arrow);
-    //console.log(spriteFromAngle(Phaser.Math.radToDeg(arrow.rotation)));
+    //console.log(spriteDirecFromAngle(Phaser.Math.radToDeg(arrow.rotation)));
     if (!slashFlag) {
-        player.animations.play(spriteFromAngle(Phaser.Math.radToDeg(arrow.rotation)), 4, true);
+        player.animations.play(spriteDirecFromAngle(Phaser.Math.radToDeg(arrow.rotation)), 4, true);
     }
 
     //Create Bullet on Click
@@ -332,12 +333,11 @@ function movePlayer() {
    
 
 }
-	
-function slash() 
-{
+
+function slash() {
     if (player) {
         slashFlag = true;
-        var playerSlash = player.animations.play(spriteFromAngle(Phaser.Math.radToDeg(arrow.rotation)) + "-slash", 10, false);
+        var playerSlash = player.animations.play(spriteDirecFromAngle(Phaser.Math.radToDeg(arrow.rotation)) + "-slash", 10, false);
         playerSlash.onComplete.add(function() {
             slashFlag = false;
         }, this);
@@ -355,10 +355,8 @@ function slash()
         myArc.alpha = 0.3;
         graphics.lifespan = 2000;
 
-        setTimeout(function() 
-		{
-            if (myArc) 
-            {
+        setTimeout(function() {
+            if (myArc) {
                 myArc.destroy();
                 myArc = null;
             }
