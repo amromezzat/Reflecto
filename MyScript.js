@@ -2,7 +2,7 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create
 var player, arrow, cursors, upButton, downButton, leftButton, rightButton;
 var speed = 200;
 var myArc, relfectFlag = 0;
-var explosion;///
+
 //Pad Variables
 var padAimX, padAimY, lastpadAimX = 0,
     lastpadAimY = 0,
@@ -34,7 +34,6 @@ function preload() {
     game.load.spritesheet('player1', 'assets/sprites/player1.png', 100, 100);
     game.load.bitmapFont('desyrel', 'assets/fonts/desyrel.png', 'assets/fonts/desyrel.xml');
     game.load.bitmapFont('stack', 'assets/fonts/shortStack.png', 'assets/fonts/shortStack.xml');
-    game.load.audio('explosion', 'assets/audio/explosion.mp3'); ///
 }
 
 function playAudio(sound, v = 1, m = false) {
@@ -120,9 +119,7 @@ function create() {
     downButton = game.input.keyboard.addKey(Phaser.Keyboard.S);
     leftButton = game.input.keyboard.addKey(Phaser.Keyboard.A);
     rightButton = game.input.keyboard.addKey(Phaser.Keyboard.D);
-    //sound 
-    explosion = game.add.audio('explosion'); ///
-    game.sound.setDecodedCallback([explosion], start, this);///
+
     //Gamepad 
     if (padFlag) {
         game.input.gamepad.start();
@@ -329,9 +326,6 @@ function movePlayer() {
 
     //Create Bullet on Click
     game.input.activePointer.leftButton.onDown.add(slash, this);
-    game.input.activePointer.leftButton.onDown.explosion;  ///
-   
-
 }
 
 function slash() {
