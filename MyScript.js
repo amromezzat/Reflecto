@@ -32,6 +32,7 @@ function preload() {
     game.load.image('arrow', 'assets/sprites/arrow.png');
     game.load.spritesheet('enemy', 'assets/sprites/enemy.png', 100, 100);
     game.load.spritesheet('player1', 'assets/sprites/player1.png', 100, 100);
+    game.load.spritesheet('player2', 'assets/sprites/player2.png', 100, 100);
     game.load.bitmapFont('desyrel', 'assets/fonts/desyrel.png', 'assets/fonts/desyrel.xml');
     game.load.bitmapFont('stack', 'assets/fonts/shortStack.png', 'assets/fonts/shortStack.xml');
 }
