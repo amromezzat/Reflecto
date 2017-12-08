@@ -1,10 +1,11 @@
 var myBullets = [];
 var bulletsGroup;
 
-function Bullet(x, y, rotation, attendedSprite) {
+function Bullet(x, y, rotation, attendedSprite, bulletSpeed) {
 
-    var bullet = game.add.sprite(x + (x * Math.cos(rotation)) / 4, y + (y * Math.sin(rotation)) / 4, 'bullet1');
-    this.wallHitCount = 3;
+	var bullet = game.add.sprite(x + (x * Math.cos(rotation)) / 4, y + (y * Math.sin(rotation)) / 4, 'bullet1');
+    Bullet.speed = bulletSpeed;
+	this.wallHitCount = 3;
 	this.reflected =false;
     bullet.anchor.setTo(0.5, 0.5);
     bullet.scale.setTo(0.25, 0.25);
@@ -12,7 +13,7 @@ function Bullet(x, y, rotation, attendedSprite) {
     bullet.body.collideWorldBounds = true;
     bullet.body.bounce.setTo(1.0, 1.0);
     //Move bullet to Player Location (Our Main Usage)
-    game.physics.arcade.moveToObject(bullet, attendedSprite, Bullet.speed);
+    game.physics.arcade.moveToObject(bullet, attendedSprite, bulletSpeed);
     game.world.bringToTop(bullet);
     bulletsGroup.add(bullet);
     var trailEmitter = makeEmitter(['cloud'], 0.2);
@@ -66,4 +67,3 @@ function Bullet(x, y, rotation, attendedSprite) {
         trailEmitter.y = bullet.y;
     }
 }
-Bullet.speed = 500;
