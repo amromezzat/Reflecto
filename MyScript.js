@@ -161,10 +161,7 @@ function endGameText() {
 }
 
 function levelUpdate() {
-    if (myEnemies.length == 0) {
-        for (var i = 0; i < myBullets.length; i++) {
-            bulletSearchDestroy(myBullets[i]);
-        }
+    if (myEnemies.length == 0 && myBullets.length == 0) {
         currentLevel++;
         clearEnemies();
         generateEnemies();
