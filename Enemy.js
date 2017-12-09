@@ -1,5 +1,6 @@
 var myEnemies = [];
 var enemiesGroup;
+
 /*///////////////////
 /x:enemy x position
 /y:enemy y position
@@ -11,13 +12,12 @@ var enemiesGroup;
 function Enemy(x, y, fireDelay = 6000, bulletSpeed = 500, movementSpeed = 7500, restDuration = 1500) {
     this.shootNow = fireDelay;
     this.animSpeed = 10;
-
     var angleDiff;
     this.movement;
     var enemy = game.add.sprite(x, y, 'enemy');
+    
     //enemy animations
     generateSprite(enemy, false);
-    this.lastAnim;
 
     game.physics.arcade.enable(enemy);
 
@@ -30,6 +30,7 @@ function Enemy(x, y, fireDelay = 6000, bulletSpeed = 500, movementSpeed = 7500, 
         enemy.animations.currentAnim.speed = this.animSpeed;
         angleDiff = game.physics.arcade.angleBetween(enemy, player);
         enemy.body.setCircle(35, 15, 3);
+        enemy.animations.play(spriteDirecFromAngle(Phaser.Math.radToDeg(angleDiff)), this.animSpeed / 60, true);
         //game.debug.body(enemy);
         if (!this.shootNow || this.shootNow <= 0) {
             this.shootNow = fireDelay;
@@ -51,23 +52,19 @@ function Enemy(x, y, fireDelay = 6000, bulletSpeed = 500, movementSpeed = 7500, 
     }
 
     this.move = function() {
-        var animSpeed = this.animSpeed;
-        //console.log(this.animSpeed)
-        enemy.animations.play(spriteDirecFromAngle(Phaser.Math.radToDeg(angleDiff)), animSpeed / 5, true);
+        enemy.animations.play(spriteDirecFromAngle(Phaser.Math.radToDeg(angleDiff)), this.animSpeed * 1000000, true);
         this.movement = game.add.tween(enemy).to({
             x: game.rnd.integerInRange(150, 600),
             y: game.rnd.integerInRange(150, 400)
         }, movementSpeed, Phaser.Easing.Linear.None, true, restDuration);
         this.movement.onComplete.add(function() {
-            enemy.animations.play(spriteDirecFromAngle(Phaser.Math.radToDeg(angleDiff)), animSpeed / 15, true);
             this.move();
         }, this);
     }
 
     function shoot(player) {
-        shooting = true;
         playAudio(blaster, 0.1);
-        var shootAnim = enemy.animations.play(spriteDirecFromAngle(Phaser.Math.radToDeg(angleDiff)) + "-shoot", 1, false);
+        var shoot = enemy.animations.play(spriteDirecFromAngle(Phaser.Math.radToDeg(angleDiff)) + "-shoot", 1, true);
         //create bullet sprite directed at enemy
         var bullet = new Bullet(enemy.x, enemy.y, angleDiff, player, bulletSpeed);
         myBullets.push(bullet);
