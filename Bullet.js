@@ -19,7 +19,7 @@ function Bullet(x, y, rotation, attendedSprite, bulletSpeed) {
     bullet.body.bounce.setTo(1, 1);
     this.trail = game.add.graphics(0, 0);
     this.positions = [];
-    bullet.reset(x + (x * Math.cos(rotation)) / 10, y + (y * Math.sin(rotation)) / 10);
+    bullet.reset(x + (x * Math.cos(rotation)) / 4, y + (y * Math.sin(rotation)) / 4);
     this.reflected = false;
 
     this.color = 0XFF0000;

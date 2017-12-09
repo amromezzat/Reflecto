@@ -282,8 +282,7 @@ function checkBulletCollison(myBullet) {
         }
 
         //check bullet and enemy collision
-        if (myBullet.reflected)
-            game.physics.arcade.collide(bulletSprite, enemiesGroup, beCollision);
+        game.physics.arcade.collide(bulletSprite, enemiesGroup, beCollision);
 
         //Reflection Check without using physics
         if (myArc && bulletSprite) {
@@ -339,14 +338,24 @@ function bbCollision(b1, b2) {
 }
 
 function beCollision(b, e) {
-    for (let i = 0; i < myEnemies.length; i++) {
-        if (myEnemies[i].getSprite() == e) {
-            myEnemies[i].die();
-            deadEnemies.push(myEnemies[i]);
-            myEnemies.splice(i, 1);
+    var bullet;
+    for (var i = 0; i < myBullets.length; i++) {
+        if (myBullets[i].getSprite() == b) {
+            bullet = myBullets[i];
         }
     }
-    bulletSearchDestroy(b);
+    for (let i = 0; i < myEnemies.length; i++) {
+        if (myEnemies[i].getSprite() == e) {
+            if (bullet.reflected) {
+                myEnemies[i].die();
+                deadEnemies.push(myEnemies[i]);
+                myEnemies.splice(i, 1);
+                bulletSearchDestroy(b);
+            } else {
+                myEnemies[i].reflect();
+            }
+        }
+    }
 }
 
 function bulletSearchDestroy(bullet) {

@@ -15,7 +15,7 @@ function Enemy(x, y, fireDelay = 6000, bulletSpeed = 500, movementSpeed = 7500, 
     var angleDiff;
     this.movement;
     var enemy = game.add.sprite(x, y, 'enemy');
-    
+
     //enemy animations
     generateSprite(enemy, false);
 
@@ -49,6 +49,22 @@ function Enemy(x, y, fireDelay = 6000, bulletSpeed = 500, movementSpeed = 7500, 
             enemy.body.velocity.setTo(0, 0);
             enemy.body.enable = false;
         }, this);
+    }
+
+    function tweenTint(obj, startColor, endColor, time) { // create an object to tween with our step value at 0
+        var colorBlend = { step: 0 }; // create the tween on this object and tween its step property to 100   
+        var colorTween = game.add.tween(colorBlend).to({ step: 100 }, time); // run the interpolateColor function every time the tween updates, feeding it the    
+        // updated value of our tween each time, and set the result as our tint    
+        colorTween.onUpdateCallback(function() {
+            obj.tint = Phaser.Color.interpolateColor(startColor, endColor, 100, colorBlend.step);
+        }); // set the object to the start color straight away    
+        obj.tint = startColor; // start the tween    
+        colorTween.start();
+    }
+
+    this.reflect = function() {
+        this.shootNow += 1000;
+        tweenTint(enemy, 0X0000FF, 0XFFFFFF, this.animSpeed * 100);
     }
 
     this.move = function() {
