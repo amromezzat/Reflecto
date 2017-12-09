@@ -2,68 +2,72 @@ var myBullets = [];
 var bulletsGroup;
 
 function Bullet(x, y, rotation, attendedSprite, bulletSpeed) {
-
-    var bullet = game.add.sprite(x + (x * Math.cos(rotation)) / 4, y + (y * Math.sin(rotation)) / 4, 'bullet1');
-    Bullet.speed = bulletSpeed;
-    this.wallHitCount = 3;
-    this.reflected = false;
+    var bullet = game.add.sprite(0, 0, '');
+    bullet.height = 5;
+    bullet.width = 20;
     bullet.anchor.setTo(0.5, 0.5);
-    bullet.scale.setTo(0.25, 0.25);
+    bullet.checkWorldBounds = true;
     game.physics.arcade.enable(bullet);
     bullet.body.collideWorldBounds = true;
-    bullet.body.bounce.setTo(1.0, 1.0);
-    //Move bullet to Player Location (Our Main Usage)
+    bullet.body.bounce.setTo(1, 1);
+    this.trail = game.add.graphics(0, 0);
+    this.positions = [];
+    bullet.reset(x, y);
+    this.reflected = false;
+
+    this.color = 0XFF0000;
+    bullet.lifespan = 4000;
     game.physics.arcade.moveToObject(bullet, attendedSprite, bulletSpeed);
-    game.world.bringToTop(bullet);
     bulletsGroup.add(bullet);
-    var trailEmitter = makeEmitter(['cloud'], 0.2);
-
-    this.update = function() {
-        updateEmitter();
-    }
-
     this.getSprite = function() {
         return bullet;
     }
-    this.destroy = function() {
-        game.time.events.add(Phaser.Timer.SECOND * 1, function() {
-            this.update = function() {};
-            trailEmitter.destroy();
-        }, this);
-    }
-    this.reflect = function() {
+
+    this.reflect = function(x, y, bulletSpeed) {
+        bullet.body.velocity.x = x * bulletSpeed;
+        bullet.body.velocity.y = y * bulletSpeed;
         this.reflected = true;
-        trailEmitter.destroy();
+        this.color = 0X2e86c1;
+    }
+    this.destroy = function() {
+        this.trail.clear();
         bulletsGroup.remove(bullet);
-        bullet.loadTexture('bullet2');
-        bulletsGroup.add(bullet);
-        trailEmitter = makeEmitter(['fire1', 'fire2', 'fire3', 'smoke'], 0.6);
     }
 
-    function makeEmitter(frames, alpha = 0.6) {
-        var emitter = game.add.emitter(game.world.centerX, game.world.centerY, 400);
-        emitter.makeParticles(frames, 0, 250, true, true);
-        emitter.gravity = 200;
-        emitter.setAlpha(alpha, 0, 3000);
-        emitter.setScale(0.15, 0, 0.15, 0, 3000);
-        emitter.maxParticleSpeed = 0;
-        emitter.particleBringToTop = true;
-        emitter.start(false, 250, 0);
-        return emitter;
-    }
-
-    function updateEmitter() {
-        game.world.bringToTop(trailEmitter);
-        //show trailEmittering path after bullet
-        var px = bullet.body.velocity.x;
-        var py = bullet.body.velocity.y;
-
-        px *= -1;
-        py *= -1;
-
-        trailEmitter.minParticleSpeed = new Phaser.Point(px, py);
-        trailEmitter.maxParticleSpeed = new Phaser.Point(px, py);
-        trailEmitter.x = bullet.x;
-        trailEmitter.y = bullet.y;
+    this.update = function() {
+        if (bullet.alive) {
+            this.positions.unshift([bullet.x, bullet.y]);
+            if (this.positions.length > 60)
+                this.positions.pop();
+        } else {
+            if (this.positions.length > 50) {
+                for (var i = 0; i < this.positions.length; i++) {
+                    if (i > 50) {
+                        this.positions.splice(i, 1)
+                    }
+                }
+            }
+            if (this.positions.length > 1) {
+                this.positions.unshift([bullet.x, bullet.y]);
+                this.positions.pop();
+            } else {
+                this.positions = [];
+            }
+        }
+        this.trail.clear();
+        for (var i of Array(this.positions.length).keys()) {
+            if (i == 0) continue
+            this.trail.lineStyle(4, this.color, 1 / (i / 10));
+            this.trail.moveTo(this.positions[i - 1][0], this.positions[i - 1][1]);
+            this.trail.lineTo(this.positions[i][0], this.positions[i][1]);
+        }
+        for (let j = 0; j < 50; j++) {
+            if (j == 0) continue
+            if (this.positions[j] && this.positions[j - 1]) {
+                this.trail.lineStyle(2, 0xFFFFFF, .8 / (j / 150))
+                this.trail.moveTo(this.positions[j - 1][0], this.positions[j - 1][1]);
+                this.trail.lineTo(this.positions[j][0], this.positions[j][1]);
+            }
+        }
     }
 }

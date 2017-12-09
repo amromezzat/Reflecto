@@ -70,7 +70,7 @@ function Enemy(x, y, fireDelay = 6000, bulletSpeed = 500, movementSpeed = 7500, 
         playAudio(blaster, 0.1);
         var shootAnim = enemy.animations.play(spriteDirecFromAngle(Phaser.Math.radToDeg(angleDiff)) + "-shoot", 1, false);
         //create bullet sprite directed at enemy
-        var bullet = new Bullet2(enemy.x, enemy.y, angleDiff, player, bulletSpeed);
+        var bullet = new Bullet(enemy.x, enemy.y, angleDiff, player, bulletSpeed);
         myBullets.push(bullet);
     }
 

@@ -308,10 +308,8 @@ function reflect(b) {
         norm = Math.sqrt((xdir * xdir) + (ydir * ydir));
         xdir = xdir / norm;
         ydir = ydir / norm;
-        b.getSprite().body.velocity.x = xdir * (Bullet.speed * 1.25);
-        b.getSprite().body.velocity.y = ydir * (Bullet.speed * 1.25);
 
-        b.reflect();
+        b.reflect(xdir, ydir, bulletSpeed * 1.25);
     }
 
 }
@@ -349,7 +347,6 @@ function bulletSearchDestroy(bullet) {
             myBullets[i].destroy();
             bullet.body.enable = false;
             setTimeout(function() {
-                bulletsGroup.remove(bullet);
                 bullet.destroy();
             }, 100);
 
