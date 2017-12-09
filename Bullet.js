@@ -64,14 +64,14 @@ function Bullet(x, y, rotation, attendedSprite, bulletSpeed) {
         this.trail.clear();
         for (var i of Array(this.positions.length).keys()) {
             if (i == 0) continue
-            this.trail.lineStyle(10, this.color, 1 / (i / 2));
+            this.trail.lineStyle(8, this.color, 1 / (i / 2));
             this.trail.moveTo(this.positions[i - 1][0], this.positions[i - 1][1]);
             this.trail.lineTo(this.positions[i][0], this.positions[i][1]);
         }
         for (let j = 0; j < 50; j++) {
             if (j == 0) continue
             if (this.positions[j] && this.positions[j - 1]) {
-                this.trail.lineStyle(8, 0xFFFFFF, .8 / (j / 10))
+                this.trail.lineStyle(4, 0xFFFFFF, .8 / (j / 10))
                 this.trail.moveTo(this.positions[j - 1][0], this.positions[j - 1][1]);
                 this.trail.lineTo(this.positions[j][0], this.positions[j][1]);
             }
