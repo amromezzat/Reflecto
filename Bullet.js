@@ -3,10 +3,10 @@ var bulletsGroup;
 
 function Bullet(x, y, rotation, attendedSprite, bulletSpeed) {
 
-	var bullet = game.add.sprite(x + (x * Math.cos(rotation)) / 4, y + (y * Math.sin(rotation)) / 4, 'bullet1');
+    var bullet = game.add.sprite(x + (x * Math.cos(rotation)) / 4, y + (y * Math.sin(rotation)) / 4, 'bullet1');
     Bullet.speed = bulletSpeed;
-	this.wallHitCount = 3;
-	this.reflected =false;
+    this.wallHitCount = 3;
+    this.reflected = false;
     bullet.anchor.setTo(0.5, 0.5);
     bullet.scale.setTo(0.25, 0.25);
     game.physics.arcade.enable(bullet);
@@ -32,7 +32,7 @@ function Bullet(x, y, rotation, attendedSprite, bulletSpeed) {
         }, this);
     }
     this.reflect = function() {
-		this.reflected = true;
+        this.reflected = true;
         trailEmitter.destroy();
         bulletsGroup.remove(bullet);
         bullet.loadTexture('bullet2');

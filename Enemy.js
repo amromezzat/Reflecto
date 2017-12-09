@@ -8,11 +8,10 @@ var enemiesGroup;
 /movementSpeed: the speed of the enemy movement
 /restDuration: the time the enemy stops before starting to move again
 ///////////////////*/
-function Enemy(x, y, fireDelay = 6000, bulletSpeed = 500, movementSpeed = 7500, restDuration = 1500) 
-{
+function Enemy(x, y, fireDelay = 6000, bulletSpeed = 500, movementSpeed = 7500, restDuration = 1500) {
     this.shootNow = fireDelay;
     this.animSpeed = 10;
-		
+
     var angleDiff;
     this.movement;
     var enemy = game.add.sprite(x, y, 'enemy');
@@ -71,7 +70,7 @@ function Enemy(x, y, fireDelay = 6000, bulletSpeed = 500, movementSpeed = 7500, 
         playAudio(blaster, 0.1);
         var shootAnim = enemy.animations.play(spriteDirecFromAngle(Phaser.Math.radToDeg(angleDiff)) + "-shoot", 1, false);
         //create bullet sprite directed at enemy
-        var bullet = new Bullet(enemy.x, enemy.y, angleDiff, player, bulletSpeed);
+        var bullet = new Bullet2(enemy.x, enemy.y, angleDiff, player, bulletSpeed);
         myBullets.push(bullet);
     }
 

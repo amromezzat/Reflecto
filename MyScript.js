@@ -9,21 +9,22 @@ var padAimX, padAimY, lastpadAimX = 0,
     pressFlagR1 = 0,
     padFlag = 0;
 
-var alive = true, currentLevel = 0, deadEnemies = [];
+var alive = true,
+    currentLevel = 0,
+    deadEnemies = [];
 var wonText, levelText;
 var fireDelay = 10000,
-	bulletSpeed = 400,
-	movementSpeed = 7500,
-	restDuration = 1500,
-	enemiesNum = 2;
+    bulletSpeed = 400,
+    movementSpeed = 7500,
+    restDuration = 1500,
+    enemiesNum = 2;
 
 var slashFlag = false;
 var explosion;
 var swordReflect;
 var blaster;
 
-function preload() 
-{
+function preload() {
     game.load.audio('explosion', 'assets/audio/explosion.mp3');
     game.load.audio('reflect', 'assets/audio/reflect.mp3');
     game.load.audio('blaster', 'assets/audio/blaster.mp3');
@@ -42,15 +43,13 @@ function preload()
     game.load.bitmapFont('stack', 'assets/fonts/shortStack.png', 'assets/fonts/shortStack.xml');
 }
 
-function playAudio(sound, v = 1, m = false) 
-{
+function playAudio(sound, v = 1, m = false) {
     sound.mute = m;
     sound.volume = v;
     sound.play();
 }
 
-function spriteDirecFromAngle(angle) 
-{
+function spriteDirecFromAngle(angle) {
     if (angle >= -22.5 && angle <= 22.5) {
         return "right";
     } else if (angle > -45 - 22.5 && angle < -45 + 22.5) {
@@ -71,15 +70,12 @@ function spriteDirecFromAngle(angle)
     }
 }
 
-function generateSprite(sprite, forPlayer = true) 
-{
-    var positionArray = 
-	[
+function generateSprite(sprite, forPlayer = true) {
+    var positionArray = [
         "bot", "bot-right", "right", "top-right", "top", "top-left", "left", "bot-left"
     ]
     var i = 0;
-    positionArray.forEach(function(position) 
-	{
+    positionArray.forEach(function(position) {
         sprite.animations.add(position, Phaser.ArrayUtils.numberArray(i, i + 3));
         sprite.animations.add(position + '-die', [i + 4]);
         if (forPlayer)
@@ -139,23 +135,20 @@ function create() {
 
 }
 
-function endGameText()
-{
-	if (!alive) 
-	{
-        for (var i = 0; i < myEnemies.length; i++) 
-		{
+function endGameText() {
+    if (!alive) {
+        for (var i = 0; i < myEnemies.length; i++) {
             myEnemies[i].movement.pause();
         }
         game.add.bitmapText(game.world.centerX / 3, game.world.centerY / 1.4, 'stack', 'You Loose Noob!', 60);
         if (wonText) {
             wonText.destroy();
         }
-    } 
-	/*else if (myEnemies.length == 0) 
-	{
+    }
+    /*else if (myEnemies.length == 0) 
+    {
         if (!wonText) 
-		{
+        {
             movePlayer = function() {};
             slash = function() {};
             player.body.enable = false;
@@ -167,75 +160,68 @@ function endGameText()
     }*/
 }
 
-function levelUpdate()
-{
-	if(myEnemies.length == 0 && myBullets.length == 0)
-	{
-		currentLevel++;
-		clearEnemies();
-		generateEnemies();
-		if(levelText)
-			levelText.destroy();
-		levelText = game.add.bitmapText(0, 0, 'desyrel', 'level : '+currentLevel, 40);
-	}
+function levelUpdate() {
+    if (myEnemies.length == 0) {
+        for (var i = 0; i < myBullets.length; i++) {
+            bulletSearchDestroy(myBullets[i]);
+        }
+        currentLevel++;
+        clearEnemies();
+        generateEnemies();
+        if (levelText)
+            levelText.destroy();
+        levelText = game.add.bitmapText(0, 0, 'desyrel', 'level : ' + currentLevel, 40);
+    }
 }
 
-function generateEnemies()
-{
-	var ranX,ranY;
-	
-	//fireDelay = 10000;
-	//bulletSpeed = 1000;
-	//movementSpeed = 7500;
-	//restDuration = 1500;
-	//enemiesNum = 5;
-	if (currentLevel % 2 == 0)
-	{
-		bulletSpeed += 25;
-		movementSpeed -= 50;
-	}
-	if (currentLevel % 5 == 0)
-	{
-		fireDelay-= 50;
-		restDuration -= 20;
-		enemiesNum++;
-	}
+function generateEnemies() {
+    var ranX, ranY;
 
-	for (let i = 0; i < enemiesNum; i++)
-	{
-		ranX = Math.floor((Math.random() * (game.world.width - 100)) + 100);
-		ranY = Math.floor((Math.random() * (game.world.height - 100)) + 100);
-		
-		enemy = new Enemy(ranX, ranY, fireDelay, bulletSpeed, movementSpeed, restDuration);
-		myEnemies.push(enemy);
-	}
+    //fireDelay = 10000;
+    //bulletSpeed = 1000;
+    //movementSpeed = 7500;
+    //restDuration = 1500;
+    //enemiesNum = 5;
+    if (currentLevel % 2 == 0) {
+        bulletSpeed += 25;
+        movementSpeed -= 50;
+    }
+    if (currentLevel % 5 == 0) {
+        fireDelay -= 50;
+        restDuration -= 20;
+        enemiesNum++;
+    }
+
+    for (let i = 0; i < enemiesNum; i++) {
+        ranX = Math.floor((Math.random() * (game.world.width - 100)) + 100);
+        ranY = Math.floor((Math.random() * (game.world.height - 100)) + 100);
+
+        enemy = new Enemy(ranX, ranY, fireDelay, bulletSpeed, movementSpeed, restDuration);
+        myEnemies.push(enemy);
+    }
 }
 
-function clearEnemies()
-{
-	for (let i = 0; i < deadEnemies.length; i++) 
-	{
-		deadEnemies[i].getSprite().destroy();
-		deadEnemies.splice(i, 0);
-	}
+function clearEnemies() {
+    for (let i = 0; i < deadEnemies.length; i++) {
+        deadEnemies[i].getSprite().destroy();
+        deadEnemies.splice(i, 0);
+    }
 }
-function update() 
-{
+
+function update() {
     game.world.bringToTop(bulletsGroup);
-	levelUpdate();
-	endGameText();
-    if (player) 
-	{
+    levelUpdate();
+    endGameText();
+    if (player) {
         //game.debug.body(player);
         game.world.bringToTop(player);
         for (let i = 0; i < myEnemies.length; i++) {
             myEnemies[i].update(player);
             if (myArc && myEnemies[i]) {
-                if (checkOverlap(myEnemies[i].getSprite(), myArc)) 
-				{
+                if (checkOverlap(myEnemies[i].getSprite(), myArc)) {
                     //console.log("Enemy Attacked");
                     myEnemies[i].die();
-					deadEnemies.push(myEnemies[i]);
+                    deadEnemies.push(myEnemies[i]);
                     myEnemies.splice(i, 1);
                 }
             }
@@ -350,7 +336,7 @@ function beCollision(b, e) {
     for (let i = 0; i < myEnemies.length; i++) {
         if (myEnemies[i].getSprite() == e) {
             myEnemies[i].die();
-			deadEnemies.push(myEnemies[i]);
+            deadEnemies.push(myEnemies[i]);
             myEnemies.splice(i, 1);
         }
     }
