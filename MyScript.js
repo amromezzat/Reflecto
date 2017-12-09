@@ -161,7 +161,17 @@ function endGameText() {
 }
 
 function levelUpdate() {
-    if (myEnemies.length == 0 && myBullets.length == 0) {
+    if (myEnemies.length == 0) {
+        for (var i = 0; i < myBullets.length; i++) {
+            myBullets[i].destroy();
+        }
+        myBullets = [];
+        if (myArc) {
+            myArc.destroy();
+            myArc = null;
+            relfectFlag = 0;
+        }
+
         currentLevel++;
         clearEnemies();
         generateEnemies();

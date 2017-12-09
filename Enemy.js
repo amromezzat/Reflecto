@@ -25,7 +25,6 @@ function Enemy(x, y, fireDelay = 6000, bulletSpeed = 500, movementSpeed = 7500, 
     enemy.anchor.setTo(0.5, 0.5);
     //enemy.scale.setTo(0.5, 0.5);
     enemiesGroup.add(enemy);
-
     this.update = function(player) {
         this.shootNow -= this.animSpeed * game.rnd.realInRange(-1, 4);
         enemy.animations.currentAnim.speed = this.animSpeed;
