@@ -9,8 +9,13 @@ var padAimX, padAimY, lastpadAimX = 0,
     pressFlagR1 = 0,
     padFlag = 0;
 
-var alive = true, currentLevel = 0, enemiesNum = 2, deadEnemies = [];
+var alive = true, currentLevel = 0, deadEnemies = [];
 var wonText, levelText;
+var fireDelay = 10000,
+	bulletSpeed = 400,
+	movementSpeed = 7500,
+	restDuration = 1500,
+	enemiesNum = 2;
 
 var slashFlag = false;
 var explosion;
@@ -142,12 +147,12 @@ function endGameText()
 		{
             myEnemies[i].movement.pause();
         }
-        game.add.bitmapText(game.world.centerX / 3, game.world.centerY / 1.4, 'desyrel', 'You lost noob!', 100);
+        game.add.bitmapText(game.world.centerX / 3, game.world.centerY / 1.4, 'stack', 'You Loose Noob!', 60);
         if (wonText) {
             wonText.destroy();
         }
     } 
-	else if (myEnemies.length == 0) 
+	/*else if (myEnemies.length == 0) 
 	{
         if (!wonText) 
 		{
@@ -159,7 +164,7 @@ function endGameText()
             player.animations.play("bot", 4, true);
             wonText = game.add.bitmapText(game.world.centerX / 3.5, game.world.centerY / 1.2, 'stack', 'You won noob!', 80);
         }
-    }
+    }*/
 }
 
 function levelUpdate()
@@ -179,11 +184,23 @@ function generateEnemies()
 {
 	var ranX,ranY;
 	
-	var fireDelay = 7000;
-	var bulletSpeed = 500;
-	var movementSpeed = 7500;
-	var restDuration = 1500;
-	
+	//fireDelay = 10000;
+	//bulletSpeed = 1000;
+	//movementSpeed = 7500;
+	//restDuration = 1500;
+	//enemiesNum = 5;
+	if (currentLevel % 2 == 0)
+	{
+		bulletSpeed += 25;
+		movementSpeed -= 50;
+	}
+	if (currentLevel % 5 == 0)
+	{
+		fireDelay-= 50;
+		restDuration -= 20;
+		enemiesNum++;
+	}
+
 	for (let i = 0; i < enemiesNum; i++)
 	{
 		ranX = Math.floor((Math.random() * (game.world.width - 100)) + 100);
@@ -206,7 +223,7 @@ function update()
 {
     game.world.bringToTop(bulletsGroup);
 	levelUpdate();
-	//endGameText();
+	endGameText();
     if (player) 
 	{
         //game.debug.body(player);
@@ -261,7 +278,7 @@ function checkBulletCollison(myBullet) {
             }
         }
         //Check Player and Bullet Collision
-        //game.physics.arcade.collide(bulletSprite, player, bpCollision);
+        game.physics.arcade.collide(bulletSprite, player, bpCollision);
 
         //Check Bullet and Bullet Collision
         try {
