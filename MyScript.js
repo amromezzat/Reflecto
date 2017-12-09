@@ -36,6 +36,7 @@ function preload() {
     game.load.image('bullet1', 'assets/sprites/bullet1.png');
     game.load.image('bullet2', 'assets/sprites/bullet2.png');
     game.load.image('arrow', 'assets/sprites/arrow.png');
+    game.load.spritesheet('arena', 'assets/sprites/arena.jpg', 800, 600);
     game.load.spritesheet('enemy', 'assets/sprites/enemy.png', 100, 100);
     game.load.spritesheet('player1', 'assets/sprites/player1.png', 100, 100);
     game.load.spritesheet('player2', 'assets/sprites/player2.png', 100, 100);
@@ -88,8 +89,8 @@ function generateSprite(sprite, forPlayer = true) {
 
 function create() {
     //Set Background and Center Game
-    //game.add.tileSprite(0, 0, 800, 600, 'floor');
-    game.stage.backgroundColor = '#FFFFFF';
+    game.add.tileSprite(0, 0, 800, 600, 'arena');
+    //game.stage.backgroundColor = '#FFFFFF';
     game.scale.pageAlignHorizontally = true;
     game.scale.pageAlignVertically = true;
     game.scale.refresh();
