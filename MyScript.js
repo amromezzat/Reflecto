@@ -28,6 +28,7 @@ function preload() {
     game.load.audio('explosion', 'assets/audio/explosion.mp3');
     game.load.audio('reflect', 'assets/audio/reflect.mp3');
     game.load.audio('blaster', 'assets/audio/blaster.mp3');
+    game.load.audio('bgMusic', 'assets/audio/bgMusic.mp3');
     game.load.image('fire1', 'assets/sprites/fire1.png');
     game.load.image('fire2', 'assets/sprites/fire2.png');
     game.load.image('fire3', 'assets/sprites/fire3.png');
@@ -44,10 +45,12 @@ function preload() {
     game.load.bitmapFont('stack', 'assets/fonts/shortStack.png', 'assets/fonts/shortStack.xml');
 }
 
-function playAudio(sound, v = 1, m = false) {
+function playAudio(sound, v = 1, loop = false, m = false) {
     sound.mute = m;
     sound.volume = v;
     sound.play();
+	if(loop)
+		sound.loopFull(v);
 }
 
 function spriteDirecFromAngle(angle) {
@@ -99,6 +102,7 @@ function create() {
     explosion = game.add.audio('explosion');
     swordReflect = game.add.audio('reflect');
     blaster = game.add.audio('blaster');
+    bgMusic = game.add.audio('bgMusic');
 
     //Create Groups
     bulletsGroup = game.add.group();
@@ -134,14 +138,16 @@ function create() {
         game.input.gamepad.start();
         pad1 = game.input.gamepad.pad1;
     }
-
+	
+	playAudio(bgMusic, 0.4, true);
 }
 
 function endGameText() {
     if (!alive) {
-        for (var i = 0; i < myEnemies.length; i++) {
-            myEnemies[i].movement.pause();
-        }
+        //for (var i = 0; i < myEnemies.length; i++) {
+        //    myEnemies[i].movement.pause();
+        //}
+		bgMusic.stop();
         game.add.bitmapText(game.world.centerX / 3, game.world.centerY / 1.4, 'stack', 'You Loose Noob!', 60);
         if (wonText) {
             wonText.destroy();
