@@ -27,6 +27,14 @@ var explosion;
 var swordReflect;
 var blaster;
 var swordSwoosh;
+var bgMusic;
+var failure;
+var enemyHit;
+var playLosingAudio = true;
+//shake on enemy contact variables
+var shakeIntensity = 0.005;
+var shakeDuration = 100;
+var hitIsPlaying = false;
 
 function preload() {
     game.load.audio('swoosh', 'assets/audio/swoosh.mp3');
@@ -34,13 +42,8 @@ function preload() {
     game.load.audio('reflect', 'assets/audio/reflect.mp3');
     game.load.audio('blaster', 'assets/audio/blaster.mp3');
     game.load.audio('bgMusic', 'assets/audio/bgMusic.mp3');
-    game.load.image('fire1', 'assets/sprites/fire1.png');
-    game.load.image('fire2', 'assets/sprites/fire2.png');
-    game.load.image('fire3', 'assets/sprites/fire3.png');
-    game.load.image('smoke', 'assets/sprites/smoke-puff.png');
-    game.load.image('cloud', 'assets/sprites/cloud.png');
-    game.load.image('bullet1', 'assets/sprites/bullet1.png');
-    game.load.image('bullet2', 'assets/sprites/bullet2.png');
+    game.load.audio('failure', 'assets/audio/failure.mp3');
+    game.load.audio('hit', 'assets/audio/hit.mp3');
     game.load.image('arrow', 'assets/sprites/arrow.png');
     game.load.spritesheet('arena', 'assets/sprites/arena.jpg', 800, 600);
     game.load.spritesheet('enemy', 'assets/sprites/enemy.png', 100, 100);
@@ -109,6 +112,8 @@ function create() {
     swordReflect = game.add.audio('reflect');
     blaster = game.add.audio('blaster');
     bgMusic = game.add.audio('bgMusic');
+    failure = game.add.audio('failure');
+    enemyHit = game.add.audio('hit');
 
     //Create Groups
     bulletsGroup = game.add.group();
@@ -121,6 +126,7 @@ function create() {
     player.anchor.setTo(0.5, 0.5);
     //player.scale.setTo(0.5, 0.5);
     game.physics.arcade.enable(player);
+
     player.body.setCircle(30, 20, 3);
     player.body.collideWorldBounds = true;
 
@@ -148,15 +154,19 @@ function create() {
     playAudio(bgMusic, 0.4, true);
 }
 
-function endGameText() {
+function endGame() {
     if (!alive) {
-        //for (var i = 0; i < myEnemies.length; i++) {
-        //    myEnemies[i].movement.pause();
-        //}
+        for (var i = 0; i < myEnemies.length; i++) {
+            myEnemies[i].movement.pause();
+        }
         bgMusic.stop();
-        game.add.bitmapText(game.world.centerX / 3, game.world.centerY / 1.4, 'stack', 'You Lose Noob!', 60);
-        if (wonText) {
-            wonText.destroy();
+        game.add.bitmapText(game.world.centerX / 1.6, game.world.centerY / 1.2, 'stack', 'You Lost!', 60);
+        // if (wonText) {
+        //     wonText.destroy();
+        // }
+        if (playLosingAudio) {
+            playLosingAudio = false;
+            playAudio(failure, 0.4);
         }
     }
     /*else if (myEnemies.length == 0) 
@@ -235,7 +245,7 @@ function clearEnemies() {
 function update() {
     game.world.bringToTop(bulletsGroup);
     levelUpdate();
-    endGameText();
+    endGame();
     if (player) {
         //game.debug.body(player);
         game.world.bringToTop(player);
@@ -278,6 +288,34 @@ function update() {
         myArc = null;
         relfectFlag = 0;
     }
+
+    game.physics.arcade.collide(player, enemiesGroup, shakeCamera);
+}
+
+function shakeCamera(enemySprite, playerSprite) {
+    for (var i = 0; i < myEnemies.length; i++) {
+        if (myEnemies[i].getSprite() == playerSprite) {
+            myEnemies[i].reflect();
+        }
+    }
+    setTimeout(function() {
+        hitIsPlaying = false;
+    }, 1000);
+    if (!hitIsPlaying) {
+        playAudio(enemyHit, 0.1);
+        hitIsPlaying = true;
+    }
+    shakeIntensity += 0.001;
+    shakeDuration += 10;
+    game.camera.shake(shakeIntensity, shakeDuration);
+    var shakeInterval = setInterval(function() {
+        if (shakeIntensity > 0.05) {
+            shakeIntensity -= 0.001;
+            shakeDuration -= 10;
+        } else {
+            clearInterval(shakeInterval);
+        }
+    }, 100);
 }
 
 function checkBulletCollison(myBullet) {

@@ -84,7 +84,7 @@ function Enemy(x, y, fireDelay = 6000, bulletSpeed = 500, movementSpeed = 7500, 
         //create bullet sprite directed at enemy
         var bullet = new Bullet(enemy.x, enemy.y, angleDiff, player, bulletSpeed);
         safeEnemyBullet.push(bullet);
-        game.time.events.add(200, function() {
+        game.time.events.add(150, function() {
             safeEnemyBullet.splice(safeEnemyBullet.indexOf(bullet), 1);
             myBullets.push(bullet);
         }, this);
