@@ -83,7 +83,11 @@ function Enemy(x, y, fireDelay = 6000, bulletSpeed = 500, movementSpeed = 7500, 
         var shoot = enemy.animations.play(spriteDirecFromAngle(Phaser.Math.radToDeg(angleDiff)) + "-shoot", 1, true);
         //create bullet sprite directed at enemy
         var bullet = new Bullet(enemy.x, enemy.y, angleDiff, player, bulletSpeed);
-        myBullets.push(bullet);
+        safeEnemyBullet.push(bullet);
+        game.time.events.add(200, function() {
+            safeEnemyBullet.splice(safeEnemyBullet.indexOf(bullet), 1);
+            myBullets.push(bullet);
+        }, this);
     }
 
     this.getSprite = function() {

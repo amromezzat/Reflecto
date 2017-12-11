@@ -19,12 +19,17 @@ var fireDelay = 10000,
     restDuration = 1500,
     enemiesNum = 2;
 
-var slashFlag = false , slashCD = false , slashCDColor = "0x00ff00", slashGraphChange = 0;
+var slashFlag = false,
+    slashCD = false,
+    slashCDColor = "0x00ff00",
+    slashGraphChange = 0;
 var explosion;
 var swordReflect;
 var blaster;
+var swordSwoosh;
 
 function preload() {
+    game.load.audio('swoosh', 'assets/audio/swoosh.mp3');
     game.load.audio('explosion', 'assets/audio/explosion.mp3');
     game.load.audio('reflect', 'assets/audio/reflect.mp3');
     game.load.audio('blaster', 'assets/audio/blaster.mp3');
@@ -49,8 +54,8 @@ function playAudio(sound, v = 1, loop = false, m = false) {
     sound.mute = m;
     sound.volume = v;
     sound.play();
-	if(loop)
-		sound.loopFull(v);
+    if (loop)
+        sound.loopFull(v);
 }
 
 function spriteDirecFromAngle(angle) {
@@ -99,6 +104,7 @@ function create() {
     game.scale.refresh();
 
     //load used audio
+    swordSwoosh = game.add.audio('swoosh');
     explosion = game.add.audio('explosion');
     swordReflect = game.add.audio('reflect');
     blaster = game.add.audio('blaster');
@@ -127,7 +133,7 @@ function create() {
 
     //Keyboard and Mouse
     //cursors = game.input.keyboard.createCursorKeys();
-	game.input.mouse.capture = true;
+    game.input.mouse.capture = true;
     upButton = game.input.keyboard.addKey(Phaser.Keyboard.W);
     downButton = game.input.keyboard.addKey(Phaser.Keyboard.S);
     leftButton = game.input.keyboard.addKey(Phaser.Keyboard.A);
@@ -138,8 +144,8 @@ function create() {
         game.input.gamepad.start();
         pad1 = game.input.gamepad.pad1;
     }
-	
-	playAudio(bgMusic, 0.4, true);
+
+    playAudio(bgMusic, 0.4, true);
 }
 
 function endGameText() {
@@ -147,8 +153,8 @@ function endGameText() {
         //for (var i = 0; i < myEnemies.length; i++) {
         //    myEnemies[i].movement.pause();
         //}
-		bgMusic.stop();
-        game.add.bitmapText(game.world.centerX / 3, game.world.centerY / 1.4, 'stack', 'You Loose Noob!', 60);
+        bgMusic.stop();
+        game.add.bitmapText(game.world.centerX / 3, game.world.centerY / 1.4, 'stack', 'You Lose Noob!', 60);
         if (wonText) {
             wonText.destroy();
         }
@@ -172,6 +178,9 @@ function levelUpdate() {
     if (myEnemies.length == 0) {
         for (var i = 0; i < myBullets.length; i++) {
             myBullets[i].destroy();
+        }
+        for (var i = 0; i < safeEnemyBullet.length; i++) {
+            safeEnemyBullet[i].destroy();
         }
         myBullets = [];
         if (myArc) {
@@ -241,6 +250,10 @@ function update() {
                 }
             }
         }
+        //bullets doesn't affect enemy for 1 second after being released
+        for (let i = 0; i < safeEnemyBullet.length; i++) {
+            safeEnemyBullet[i].update();
+        }
         for (let i = 0; i < myBullets.length; i++) {
             myBullets[i].update();
         }
@@ -296,6 +309,8 @@ function checkBulletCollison(myBullet) {
             if (checkOverlap(bulletSprite, myArc)) {
                 reflect(myBullet);
                 relfectFlag = 1;
+            } else {
+                playAudio(swordSwoosh, 0.1);
             }
         }
     }
@@ -401,46 +416,41 @@ function movePlayer() {
     //Control Arrow Direction
     arrow.rotation = game.physics.arcade.angleToPointer(arrow);
     //console.log(spriteDirecFromAngle(Phaser.Math.radToDeg(arrow.rotation)));
-    if (!slashFlag) 
-	{
+    if (!slashFlag) {
         player.animations.play(spriteDirecFromAngle(Phaser.Math.radToDeg(arrow.rotation)), 4, true);
     }
 
-	//game.input.activePointer.leftButton.onDown.add(slash, this);
-	if(game.input.activePointer.leftButton.isDown)
-	{
-		slash();
-	}
-	slashCDGraphics(slashGraphChange+=2, slashCDColor);
-}
-
-function updateSlashCD()
-{
-	slashCD = false;
-	slashCDColor = "0x00ff00";
-}
-function slashCDGraphics(change, color) 
-{
-	var graphics = game.add.graphics(player.position.x, player.position.y);
-	graphics.alpha = 1.0;
-	graphics.lineStyle(5, color);
-	graphics.arc(0, 50, 15, game.math.degToRad(0+change), game.math.degToRad(135+change), false);
-	
-	graphics.lifespan = 1;
-	
+    //game.input.activePointer.leftButton.onDown.add(slash, this);
+    if (game.input.activePointer.leftButton.isDown) {
+        slash();
     }
+    slashCDGraphics(slashGraphChange += 2, slashCDColor);
+}
 
-function slash() 
-{
-    if (!slashCD && player) 
-	{
-		// CoolDown Stuff
-		slashCD = true;
-		slashCDColor = "0xff0000";
-		var timer = game.time.create(false);
-		timer.loop(3000, updateSlashCD, this);
-		timer.start();
-		
+function updateSlashCD() {
+    slashCD = false;
+    slashCDColor = "0x00ff00";
+}
+
+function slashCDGraphics(change, color) {
+    var graphics = game.add.graphics(player.position.x, player.position.y);
+    graphics.alpha = 1.0;
+    graphics.lineStyle(5, color);
+    graphics.arc(0, 50, 15, game.math.degToRad(0 + change), game.math.degToRad(135 + change), false);
+
+    graphics.lifespan = 1;
+
+}
+
+function slash() {
+    if (!slashCD && player) {
+        // CoolDown Stuff
+        slashCD = true;
+        slashCDColor = "0xff0000";
+        var timer = game.time.create(false);
+        timer.loop(3000, updateSlashCD, this);
+        timer.start();
+
         slashFlag = true;
         var playerSlash = player.animations.play(spriteDirecFromAngle(Phaser.Math.radToDeg(arrow.rotation)) + "-slash", 10, false);
         playerSlash.onComplete.add(function() {
@@ -455,16 +465,13 @@ function slash()
         graphics.beginFill(0xFF3300);
         graphics.arc(0, 0, 90, angle - game.math.degToRad(45), angle + game.math.degToRad(45), false);
         graphics.endFill();
-		
-		var xdir, ydir, norm;
-		
-        if (padFlag) 
-		{
+
+        var xdir, ydir, norm;
+
+        if (padFlag) {
             xdir = (padAimX + lastpadAimX) - player.position.x;
             ydir = (padAimY + lastpadAimY) - player.position.y;
-        } 
-		else 
-		{
+        } else {
             xdir = game.input.mousePointer.x - player.position.x;
             ydir = game.input.mousePointer.y - player.position.y;
         }
@@ -473,15 +480,13 @@ function slash()
         xdir = xdir / norm;
         ydir = ydir / norm;
 
-        myArc = game.add.sprite(player.position.x+(40*xdir),player.position.y+(40*ydir), graphics.generateTexture());
+        myArc = game.add.sprite(player.position.x + (40 * xdir), player.position.y + (40 * ydir), graphics.generateTexture());
         myArc.anchor.setTo(0.5, 0.5);
         myArc.alpha = 0.0;
         graphics.lifespan = 2000;
 
-        setTimeout(function() 
-		{
-            if (myArc) 
-			{
+        setTimeout(function() {
+            if (myArc) {
                 myArc.destroy();
                 myArc = null;
             }

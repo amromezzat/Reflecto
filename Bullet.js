@@ -1,4 +1,5 @@
 var myBullets = [];
+var safeEnemyBullet = [];
 var bulletsGroup;
 
 /*///////////////////
@@ -19,9 +20,8 @@ function Bullet(x, y, rotation, attendedSprite, bulletSpeed) {
     bullet.body.bounce.setTo(1, 1);
     this.trail = game.add.graphics(0, 0);
     this.positions = [];
-    bullet.reset(x + (x * Math.cos(rotation)) / 4, y + (y * Math.sin(rotation)) / 4);
+    bullet.reset(x, y);
     this.reflected = false;
-
     this.color = 0XFF0000;
     bullet.lifespan = 4000;
     game.physics.arcade.moveToObject(bullet, attendedSprite, bulletSpeed);
