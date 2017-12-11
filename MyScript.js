@@ -19,7 +19,7 @@ var fireDelay = 10000,
     restDuration = 1500,
     enemiesNum = 2;
 
-var slashFlag = false;
+var slashFlag = false , slashCD = false , slashCDColor = "0x00ff00", slashGraphChange = 0;
 var explosion;
 var swordReflect;
 var blaster;
@@ -111,18 +111,19 @@ function create() {
     player.anchor.setTo(0.5, 0.5);
     //player.scale.setTo(0.5, 0.5);
     game.physics.arcade.enable(player);
-    player.body.setCircle(35, 15, 3);
+    player.body.setCircle(30, 20, 3);
     player.body.collideWorldBounds = true;
 
     //Create Arrow
     arrow = game.add.sprite(200, 400, 'arrow');
     arrow.anchor.setTo(0, 0.5);
     arrow.scale.setTo(0.05, 0.05);
-    arrow.alpha = 0.5;
+    arrow.alpha = 0.4;
     game.physics.arcade.enable(arrow);
 
     //Keyboard and Mouse
     //cursors = game.input.keyboard.createCursorKeys();
+	game.input.mouse.capture = true;
     upButton = game.input.keyboard.addKey(Phaser.Keyboard.W);
     downButton = game.input.keyboard.addKey(Phaser.Keyboard.S);
     leftButton = game.input.keyboard.addKey(Phaser.Keyboard.A);
@@ -394,16 +395,46 @@ function movePlayer() {
     //Control Arrow Direction
     arrow.rotation = game.physics.arcade.angleToPointer(arrow);
     //console.log(spriteDirecFromAngle(Phaser.Math.radToDeg(arrow.rotation)));
-    if (!slashFlag) {
+    if (!slashFlag) 
+	{
         player.animations.play(spriteDirecFromAngle(Phaser.Math.radToDeg(arrow.rotation)), 4, true);
     }
 
-    //Create Bullet on Click
-    game.input.activePointer.leftButton.onDown.add(slash, this);
+	//game.input.activePointer.leftButton.onDown.add(slash, this);
+	if(game.input.activePointer.leftButton.isDown)
+	{
+		slash();
+	}
+	slashCDGraphics(slashGraphChange+=2, slashCDColor);
 }
 
-function slash() {
-    if (player) {
+function updateSlashCD()
+{
+	slashCD = false;
+	slashCDColor = "0x00ff00";
+}
+function slashCDGraphics(change, color) 
+{
+	var graphics = game.add.graphics(player.position.x, player.position.y);
+	graphics.alpha = 1.0;
+	graphics.lineStyle(5, color);
+	graphics.arc(0, 50, 15, game.math.degToRad(0+change), game.math.degToRad(135+change), false);
+	
+	graphics.lifespan = 1;
+	
+    }
+
+function slash() 
+{
+    if (!slashCD && player) 
+	{
+		// CoolDown Stuff
+		slashCD = true;
+		slashCDColor = "0xff0000";
+		var timer = game.time.create(false);
+		timer.loop(3000, updateSlashCD, this);
+		timer.start();
+		
         slashFlag = true;
         var playerSlash = player.animations.play(spriteDirecFromAngle(Phaser.Math.radToDeg(arrow.rotation)) + "-slash", 10, false);
         playerSlash.onComplete.add(function() {
@@ -416,15 +447,35 @@ function slash() {
         else
             var angle = game.physics.arcade.angleToPointer(arrow); //Use with Keyboard
         graphics.beginFill(0xFF3300);
-        graphics.arc(0, 0, 90, angle - game.math.degToRad(90), angle + game.math.degToRad(90), false);
+        graphics.arc(0, 0, 90, angle - game.math.degToRad(45), angle + game.math.degToRad(45), false);
         graphics.endFill();
-        myArc = game.add.sprite(player.position.x, player.position.y, graphics.generateTexture());
+		
+		var xdir, ydir, norm;
+		
+        if (padFlag) 
+		{
+            xdir = (padAimX + lastpadAimX) - player.position.x;
+            ydir = (padAimY + lastpadAimY) - player.position.y;
+        } 
+		else 
+		{
+            xdir = game.input.mousePointer.x - player.position.x;
+            ydir = game.input.mousePointer.y - player.position.y;
+        }
+
+        norm = Math.sqrt((xdir * xdir) + (ydir * ydir));
+        xdir = xdir / norm;
+        ydir = ydir / norm;
+
+        myArc = game.add.sprite(player.position.x+(40*xdir),player.position.y+(40*ydir), graphics.generateTexture());
         myArc.anchor.setTo(0.5, 0.5);
-        myArc.alpha = 0.3;
+        myArc.alpha = 0.0;
         graphics.lifespan = 2000;
 
-        setTimeout(function() {
-            if (myArc) {
+        setTimeout(function() 
+		{
+            if (myArc) 
+			{
                 myArc.destroy();
                 myArc = null;
             }
