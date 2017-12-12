@@ -127,7 +127,7 @@ function create() {
     //player.scale.setTo(0.5, 0.5);
     game.physics.arcade.enable(player);
 
-    player.body.setCircle(30, 20, 3);
+    player.body.setCircle(25, 25, 7);
     player.body.collideWorldBounds = true;
 
     //Create Arrow
@@ -156,9 +156,9 @@ function create() {
 
 function endGame() {
     if (!alive) {
-        for (var i = 0; i < myEnemies.length; i++) {
-            myEnemies[i].movement.pause();
-        }
+        //for (var i = 0; i < myEnemies.length; i++) {
+            //myEnemies[i].movement.pause();
+        //}
         bgMusic.stop();
         game.add.bitmapText(game.world.centerX / 1.6, game.world.centerY / 1.2, 'stack', 'You Lost!', 60);
         // if (wonText) {
